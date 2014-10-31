@@ -1,0 +1,52 @@
+bam_sort_memory=2000000000
+
+rule bam_index:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.bam.bai"
+    shell:
+        "module load sambamba; sambamba index {input} {output}"
+
+
+rule bam_sort:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.sorted.bam"
+    params:
+        memory: str(bam_sort_memory)
+    shell:
+        """module load samtools;\
+           samtools sort -m {params.memory} {input} {wildcards.prefix}.sorted"""
+
+
+rule bam_sort_name:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.namesorted.bam"
+    params:
+        memory: str(bam_sort_memory)
+    shell:
+        """module load sambamba; \
+           sambamba sort -m {params.memory} -n {input} \
+           {wildcards.prefix}.namesorted"""
+
+
+rule sam_to_bam:
+    input:
+        "{prefix}.sam"
+    output:
+        "{prefix}.bam"
+    shell:
+        "samtools view -Sbh {input} > {output}"
+
+
+rule bam_stats:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.idxstats.txt"
+    shell:
+        "samtools idxstats {input} > {output}"

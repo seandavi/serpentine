@@ -1,0 +1,19 @@
+rule fasta_index:
+    input:
+        "{prefix}.{suffix}"
+    output:
+        "{prefix}.{suffix,(fasta|fa)}.fai"
+    shell:
+        "module load samtools; samtools faidx {input}"
+
+
+rule fasta_dict:
+    input:
+        "{prefix}.{suffix}"
+    output:
+        "{prefix}.{suffix,(fasta|fa)}.dict"
+    shell:
+        "module load picard; "
+        "java -jar $PICARDJARPATH/CreateSequenceDictionary.jar "
+        "REFERENCE={input} "
+        "OUTPUT={output}"
