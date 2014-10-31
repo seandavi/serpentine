@@ -1,0 +1,92 @@
+"""
+Read mapping with BWA MEM (http://bio-bwa.sourceforge.net).
+
+For usage, include this in your workflow.
+
+Required:
+  - bwa (0.7.5 or greater)
+  - a parameter, bwa_index, that is the bwa index prefix path
+
+Expects the global variable config
+(see https://bitbucket.org/johanneskoester/snakemake/wiki/Documentation#markdown-header-configuration)
+of at least the following structure, assuming that the desired reference sequence is some genome
+to be found under the given path.
+
+The sample/library/unit scheme allows for multiplexing while still tracking
+sources of variability.
+
+  - Samples can be run as one or more libraries.
+  - Libraries can be single- or paired-end
+  - Units are single sets of fastq files (from a lane or multiplexed lane)
+
+{
+    "references": {
+        "genome": "/path/to/genome.fasta"
+    },
+    "bwa_index": "/path/to/bwa/index",
+    "samples": {
+        "A": ["lib_A"],
+        "B": ["lib_B1", "lib_B2"]
+    },
+    "libraries": {
+        "lib_A": ["A"],
+        "lib_B1": ["unit_b1"],
+        "lib_B2": ["unit_b2"]
+    },
+    "units": {
+        "A":
+            ["path/to/A_R1.fastq.gz", "path/to/A_R2.fastq.gz"],
+        "unit_b1":
+            ["path/to/B.fastq.gz"],
+        "unit_b2":
+            ["path/to/b_1.fastq.gz", "path/to/b_2.fastq.gz"]
+    },
+    "platform": "Illumina",
+    "params_bwa_mem": ""
+}
+
+Note the separation between samples and units that allows to have more than
+one sequencing run for each sample, or multiple lanes per sample.
+The "params_bwa_mem" entry is optional.
+"""
+
+UNIT_TO_LIBRARY = {}
+for lib,units in config['libraries'].items():
+    for unit in units:
+        UNIT_TO_LIBRARY[unit]=lib
+
+LIBRARY_TO_SAMPLE  = {}
+for sample,libs in config['samples'].items():
+    for lib in libs:
+        LIBRARY_TO_SAMPLE[lib]=sample
+
+UNIT_TO_SAMPLE = {}
+for unit in config['units'].keys():
+    UNIT_TO_SAMPLE[unit]=LIBRARY_TO_SAMPLE[UNIT_TO_LIBRARY[unit]]
+
+
+__author__  = "Johannes Köster (http://johanneskoester.bitbucket.org)"
+__license__ = "MIT"
+
+from snakemake.exceptions import MissingInputException
+
+rule bwa_mem_map:
+    input:
+        lambda wildcards: config["bwa_index"][wildcards.reference],
+        lambda wildcards: config["units"][wildcards.unit]
+    output:
+        "mapping/{reference}/units/{unit}.bam"
+    params:
+        batch ="-l nodes=1:gpfs -q ccr",
+        sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
+        library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
+        custom=config.get("params_bwa_mem", "")
+    log:
+        "mapping/log/{reference}/{unit}.log"
+    threads: 64
+    shell:
+        "bwa mem {params.custom} "
+        r"-R '@RG\tID:{wildcards.unit}\t"
+        "SM:{params.sample}\tLB:{params.library}\tPL:{config[platform]}' "
+        "-t {threads} {input}  2> {log} "
+        "| samtools view -Sbh - > {output}"
