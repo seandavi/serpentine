@@ -1,3 +1,14 @@
+rule bam_measure_insert_size:
+    input:
+        "{prefix}.sorted.bam"
+    output:
+        txt="{prefix}.insert_size.txt",
+        pdf="{prefix}.insert_size_histogram.pdf"
+    shell:
+        "picard-tools CollectInsertSizeMetrics INPUT={input} "
+        "OUTPUT={output.txt} HISTOGRAM_FILE={output.pdf}"
+
+
 rule collectrnaseqmetrics:
     input: bam="{base}.bam",
            refflat=CONFIG['refFlat'],

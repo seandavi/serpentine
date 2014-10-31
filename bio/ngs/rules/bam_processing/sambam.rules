@@ -1,3 +1,17 @@
+"""
+Rules for indexing, sorting, and modifying BAM files
+
+Uses:
+  - sambamba
+  - samtools
+
+Parameters:
+  - bam_sort_memory
+"""
+
+__author__  = "Sean Davis <http://watson.nci.nih.gov/~sdavis>"
+__license__ = "MIT"
+
 bam_sort_memory=2000000000
 
 rule bam_index:
