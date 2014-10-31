@@ -1,0 +1,16 @@
+rule collectrnaseqmetrics:
+    input: bam="{base}.bam",
+           refflat=CONFIG['refFlat'],
+           ribosomal=CONFIG['ribosomal'],
+           reference=CONFIG['fasta']
+    output: "{base}.bam.rnametrics"
+    params: batch="-l nodes=1:gpfs -q ccr"
+    version: "1.119"
+    shell: 
+        "module load picard/1.119 && "
+        "java -jar $PICARDJARPATH/CollectRnaSeqMetrics.jar "
+        "R={input.reference} I={input.bam} "
+        "O={output} AS=true LEVEL=READ_GROUP LEVEL=SAMPLE LEVEL=LIBRARY "
+        "REF_FLAT={input.refflat} STRAND_SPECIFICITY=NONE "
+        "RIBOSOMAL_INTERVALS={input.ribosomal}"
+
