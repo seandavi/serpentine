@@ -1,3 +1,16 @@
+"""
+Rules for fasta indexing
+
+To use, just include the rules in your workflow
+
+Requires:
+  - picard
+  - samtools
+"""
+
+__author__  = "Sean Davis <http://watson.nci.nih.gov/~sdavis>"
+__license__ = "MIT"
+
 rule fasta_index:
     input:
         "{prefix}.{suffix}"

@@ -1,27 +1,43 @@
+"""
+Collect various metrics on BAM files
+
+Requires:
+  - picard
+
+"""
+
+__author__  = "Sean Davis <http://watson.nci.nih.gov/~sdavis>"
+__license__ = "MIT"
+
+
 rule bam_measure_insert_size:
     input:
         "{prefix}.sorted.bam"
     output:
         txt="{prefix}.insert_size.txt",
         pdf="{prefix}.insert_size_histogram.pdf"
+    params: 
+        batch="-l nodes=1:gpfs"
     shell:
-        "picard-tools CollectInsertSizeMetrics INPUT={input} "
+        "module load picard && "
+        "java -jar $PICARDJARPATH/CollectInsertSizeMetrics.jar INPUT={input} "
         "OUTPUT={output.txt} HISTOGRAM_FILE={output.pdf}"
 
 
 rule collectrnaseqmetrics:
     input: bam="{base}.bam",
-           refflat=CONFIG['refFlat'],
-           ribosomal=CONFIG['ribosomal'],
-           reference=CONFIG['fasta']
+           refflat=config['refFlat'],
+           ribosomal=config['ribosomal'],
+           reference=config['references'][wildcards.reference]
     output: "{base}.bam.rnametrics"
-    params: batch="-l nodes=1:gpfs -q ccr"
-    version: "1.119"
+    params: 
+        batch="-l nodes=1:gpfs",
+        strand=config['strand_specificity']
     shell: 
-        "module load picard/1.119 && "
+        "module load picard && "
         "java -jar $PICARDJARPATH/CollectRnaSeqMetrics.jar "
         "R={input.reference} I={input.bam} "
         "O={output} AS=true LEVEL=READ_GROUP LEVEL=SAMPLE LEVEL=LIBRARY "
-        "REF_FLAT={input.refflat} STRAND_SPECIFICITY=NONE "
+        "REF_FLAT={input.refflat} STRAND_SPECIFICITY={params.strand} "
         "RIBOSOMAL_INTERVALS={input.ribosomal}"
 
