@@ -70,16 +70,23 @@ __license__ = "MIT"
 
 from snakemake.exceptions import MissingInputException
 
+rule bwa_index_fasta:
+    input:
+        lambda wildcards: config['reference'][wildcards.reference]
+    output:
+        lambda wildcards: wildcards.reference+".pac"
+
 rule bwa_mem_map:
     input:
-        lambda wildcards: config["bwa_index"][wildcards.reference],
-        lambda wildcards: config["units"][wildcards.unit]
+        index=lambda wildcards: wildcards.reference+".pac",
+        fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
         "mapping/{reference}/units/{unit}.bam"
     params:
         batch ="-l nodes=1:gpfs -q ccr",
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
+        platform=config.get("platform","Illumina"),
         custom=config.get("params_bwa_mem", "")
     log:
         "mapping/log/{reference}/{unit}.log"
@@ -87,6 +94,6 @@ rule bwa_mem_map:
     shell:
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
-        "SM:{params.sample}\tLB:{params.library}\tPL:{config[platform]}' "
-        "-t {threads} {input}  2> {log} "
+        "SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
+        "-t {threads} {params.prefix} {input.fastq}  2> {log} "
         "| samtools view -Sbh - > {output}"
