@@ -1,24 +1,31 @@
 {
     "references": {
-        "genome": "path/to/genome.fasta"
+        "human_g1k_v37": "/fdb/GATK_resource_bundle/b37-2.8/human_g1k_v37.fasta"
     },
     "samples": {
-        "A": ["lib_A"],
-        "B": ["lib_B1", "lib_B2"]
+        "RW1": ["RW1_ATCACG"],
+        "RW2": ["RW2_CGATGT"],
+	"RW3": ["RW3_TTAGGC"],
+	"RW4": ["RW4_TGACCA"],
+	"RW5": ["RW5_ACAGTG"]
     },
     "libraries": {
-        "lib_A": ["A"],
-        "lib_B1": ["unit_b1"],
-        "lib_B2": ["unit_b2"]
+        "RW1_ATCACG": ["RW1_ATCACG_L002"],
+        "RW2_CGATGT": ["RW2_CGATGT_L002"],
+	"RW3_TTAGGC": ["RW3_TTAGGC_L003"],
+	"RW4_TGACCA": ["RW4_TGACCA_L003"],
+	"RW5_ACAGTG": ["RW5_ACAGTG_L003"]
     },
-    "units": {
-        "A":
-            ["path/to/A_R1.fastq.gz", "path/to/A_R2.fastq.gz"],
-        "unit_b1":
-            ["path/to/B.fastq.gz"],
-        "unit_b2":
-            ["path/to/b_1.fastq.gz", "path/to/b_2.fastq.gz"]
-    },
+    "units": {"RW1_ATCACG_L002": ["/data/CCRIFXCCR/pipe/RW1_ATCACG_L002.R1.fastq.gz",
+				  "/data/CCRIFXCCR/pipe/RW1_ATCACG_L002.R2.fastq.gz"],
+              "RW2_CGATGT_L002": ["/data/CCRIFXCCR/pipe/RW2_CGATGT_L002.R1.fastq.gz",
+				  "/data/CCRIFXCCR/pipe/RW2_CGATGT_L002.R2.fastq.gz"],
+              "RW3_TTAGGC_L003": ["/data/CCRIFXCCR/pipe/RW3_TTAGGC_L003.R1.fastq.gz",
+				  "/data/CCRIFXCCR/pipe/RW3_TTAGGC_L003.R2.fastq.gz"],
+              "RW4_TGACCA_L003": ["/data/CCRIFXCCR/pipe/RW4_TGACCA_L003.R1.fastq.gz",
+				  "/data/CCRIFXCCR/pipe/RW4_TGACCA_L003.R2.fastq.gz"],
+              "RW5_ACAGTG_L003": ["/data/CCRIFXCCR/pipe/RW5_ACAGTG_L003.R1.fastq.gz",
+				  "/data/CCRIFXCCR/pipe/RW5_ACAGTG_L003.R2.fastq.gz"]}},
     "platform": "Illumina",
     "params_bwa_mem": ""
 }
