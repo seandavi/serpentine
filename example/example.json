@@ -1,0 +1,24 @@
+{
+    "references": {
+        "genome": "path/to/genome.fasta"
+    },
+    "samples": {
+        "A": ["lib_A"],
+        "B": ["lib_B1", "lib_B2"]
+    },
+    "libraries": {
+        "lib_A": ["A"],
+        "lib_B1": ["unit_b1"],
+        "lib_B2": ["unit_b2"]
+    },
+    "units": {
+        "A":
+            ["path/to/A_R1.fastq.gz", "path/to/A_R2.fastq.gz"],
+        "unit_b1":
+            ["path/to/B.fastq.gz"],
+        "unit_b2":
+            ["path/to/b_1.fastq.gz", "path/to/b_2.fastq.gz"]
+    },
+    "platform": "Illumina",
+    "params_bwa_mem": ""
+}
