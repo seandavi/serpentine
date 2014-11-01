@@ -97,7 +97,7 @@ rule bwa_mem_map:
         index=lambda wildcards: "resources/mapping/"+wildcards.reference+".pac",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
-        "mapping/{reference}/units/{unit}.bam"
+        temp("mapping/{reference}/units/{unit}.bam")
     params:
         batch ="-l nodes=1:gpfs -q ccr",
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
