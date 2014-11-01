@@ -50,6 +50,9 @@ one sequencing run for each sample, or multiple lanes per sample.
 The "params_bwa_mem" entry is optional.
 """
 
+import collections
+
+
 UNIT_TO_LIBRARY = {}
 for lib,units in config['libraries'].items():
     for unit in units:
@@ -64,6 +67,11 @@ UNIT_TO_SAMPLE = {}
 for unit in config['units'].keys():
     UNIT_TO_SAMPLE[unit]=LIBRARY_TO_SAMPLE[UNIT_TO_LIBRARY[unit]]
 
+SAMPLE_TO_UNIT = collections.defaultdict(list)
+for unit,sample in UNIT_TO_SAMPLE.items():
+    print(unit)
+    print(sample)
+    SAMPLE_TO_UNIT[sample].append(unit)
 
 __author__  = "Johannes Köster (http://johanneskoester.bitbucket.org)"
 __license__ = "MIT"
@@ -113,3 +121,18 @@ rule bwa_mem_map:
         "SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
         "-t {threads} {wildcards.reference} {input.fastq}  2> {log} "
         "| samtools view -Sbh - > {output}"
+
+rule merge_bwa_sample_bam:
+    params:  
+        batch="-l nodes=1:gpfs"
+    input:
+        lambda wildcards: expand("mapping/{reference}/units/{unit}.bam",
+                                 unit=SAMPLE_TO_UNIT[wildcards.sample],
+                                 reference=wildcards.reference)
+    output: 
+        temp("mapping/{reference}/samples/{sample}.bam")
+    threads: 2
+    run:  
+        cmd = 'java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}'.format(' '.join(['I={0}'.format(i) for i in input]))
+        cmd = cmd + " O={output}"
+        shell(cmd)

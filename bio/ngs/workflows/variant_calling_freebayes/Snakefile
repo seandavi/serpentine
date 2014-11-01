@@ -3,5 +3,5 @@ configfile: "config.json"
 include: "serpentine/bio/ngs/rules/mapping/bwa.rules"
 
 rule final:
-    input: expand("mapping/human_g1k_v37/units/{unit}.bam",unit=config['units'].keys())
+    input: expand("mapping/human_g1k_v37/samples/{sample}.bam",sample=config['samples'].keys())
     params: batch='-l nodes=1:gpfs'
