@@ -25,7 +25,7 @@
               "RW4_TGACCA_L003": ["/data/CCRIFXCCR/pipe/RW4_TGACCA_L003.R1.fastq.gz",
 				  "/data/CCRIFXCCR/pipe/RW4_TGACCA_L003.R2.fastq.gz"],
               "RW5_ACAGTG_L003": ["/data/CCRIFXCCR/pipe/RW5_ACAGTG_L003.R1.fastq.gz",
-				  "/data/CCRIFXCCR/pipe/RW5_ACAGTG_L003.R2.fastq.gz"]}},
+				  "/data/CCRIFXCCR/pipe/RW5_ACAGTG_L003.R2.fastq.gz"]},
     "platform": "Illumina",
     "params_bwa_mem": ""
 }
