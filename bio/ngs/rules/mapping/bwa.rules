@@ -72,13 +72,15 @@ from snakemake.exceptions import MissingInputException
 
 rule bwa_index_fasta:
     input:
-        lambda wildcards: config['reference'][wildcards.reference]
+        lambda wildcards: config['references'][wildcards.reference]
     output:
-        lambda wildcards: wildcards.reference+".pac"
+        "resources/mapping/{reference}.pac"
+    params: batch='-l nodes=1:gpfs'
+    shell: "module load bwa/0.7.10 && bwa index -p {wildcards.reference} {input}"
 
 rule bwa_mem_map:
     input:
-        index=lambda wildcards: wildcards.reference+".pac",
+        index=lambda wildcards: "resources/mapping/"+wildcards.reference+".pac",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
         "mapping/{reference}/units/{unit}.bam"
@@ -95,5 +97,5 @@ rule bwa_mem_map:
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
         "SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
-        "-t {threads} {params.prefix} {input.fastq}  2> {log} "
+        "-t {threads} {wildcards.reference} {input.fastq}  2> {log} "
         "| samtools view -Sbh - > {output}"
