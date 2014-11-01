@@ -1,6 +1,7 @@
-configfile: "example.json"
+configfile: "config.json"
 
-include: "bio/ngs/rules/mapping/bwa.rules"
+include: "serpentine/bio/ngs/rules/mapping/bwa.rules"
 
 rule final:
-    input: [sample+".bam" for sample in config['samples'].keys()]
+    input: expand("mapping/human_g1k_v37/units/{unit}.bam",unit=config['units'].keys())
+    params: batch='-l nodes=1:gpfs'
