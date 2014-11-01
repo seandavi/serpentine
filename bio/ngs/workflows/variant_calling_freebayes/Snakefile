@@ -1,0 +1,6 @@
+configfile: "example.json"
+
+include: "bio/ngs/rules/mapping/bwa.rules"
+
+rule final:
+    input: [sample+".bam" for sample in config['samples'].keys()]
