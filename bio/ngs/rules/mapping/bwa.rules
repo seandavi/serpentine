@@ -69,8 +69,6 @@ for unit in config['units'].keys():
 
 SAMPLE_TO_UNIT = collections.defaultdict(list)
 for unit,sample in UNIT_TO_SAMPLE.items():
-    print(unit)
-    print(sample)
     SAMPLE_TO_UNIT[sample].append(unit)
 
 __author__  = "Johannes Köster (http://johanneskoester.bitbucket.org)"
@@ -106,20 +104,21 @@ rule bwa_mem_map:
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
         temp("mapping/{reference}/units/{unit}.bam")
+    version: "0.7.10"
     params:
         batch ="-l nodes=1:gpfs -q ccr",
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
         platform=config.get("platform","Illumina"),
+	prefix = "resources/mapping/{reference}",
         custom=config.get("params_bwa_mem", "")
-    log:
-        "mapping/log/{reference}/{unit}.log"
+    log: "mapping/log/{reference}/{unit}.log"
     threads: 64
-    shell:
+    shell: "module load bwa/{version} && "
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
-        "SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
-        "-t {threads} {wildcards.reference} {input.fastq}  2> {log} "
+        r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
+        "-t {threads} {params.prefix} {input.fastq}  2> {log} "
         "| samtools view -Sbh - > {output}"
 
 rule merge_bwa_sample_bam:
