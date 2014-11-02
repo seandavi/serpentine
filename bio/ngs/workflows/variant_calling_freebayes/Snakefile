@@ -1,7 +1,10 @@
 configfile: "config.json"
 
+localrules: final
+
+include: "serpentine/bio/ngs/rules/bam_processing/sambam.rules"
 include: "serpentine/bio/ngs/rules/mapping/bwa.rules"
 
 rule final:
-    input: expand("mapping/human_g1k_v37/samples/{sample}.bam",sample=config['samples'].keys())
+    input: expand("mapping/human_g1k_v37/samples/{sample}.md.bam",sample=config['samples'].keys())
     params: batch='-l nodes=1:gpfs'

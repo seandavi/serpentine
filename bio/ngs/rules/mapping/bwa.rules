@@ -110,16 +110,18 @@ rule bwa_mem_map:
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
         platform=config.get("platform","Illumina"),
-	prefix = "resources/mapping/{reference}",
+	bwa_index = "resources/mapping/{reference}",
+        output_prefix = "mapping/{reference}/units/{unit}",
         custom=config.get("params_bwa_mem", "")
     log: "mapping/log/{reference}/{unit}.log"
     threads: 64
-    shell: "module load bwa/{version} && "
+    shell: ". /usr/local/Modules/default/init/bash && module load bwa/{version} && "
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
         r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
-        "-t {threads} {params.prefix} {input.fastq}  2> {log} "
-        "| samtools view -Sbh - > {output}"
+        "-t {threads} {params.bwa_index} {input.fastq}  2> {log} "
+        "| samtools view -Sbh - " 
+        "| samtools sort -m 30000000000 - {params.output_prefix}"
 
 rule merge_bwa_sample_bam:
     params:  
@@ -129,9 +131,11 @@ rule merge_bwa_sample_bam:
                                  unit=SAMPLE_TO_UNIT[wildcards.sample],
                                  reference=wildcards.reference)
     output: 
-        temp("mapping/{reference}/samples/{sample}.bam")
+        temp("mapping/{reference}/samples/{sample,[^.]}.bam")
     threads: 2
+    version: "1.119"
     run:  
-        cmd = 'java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}'.format(' '.join(['I={0}'.format(i) for i in input]))
+        cmd = """. /usr/local/Modules/default/init/bash && module load picard/{{version}} && java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}""".format(' '.join(['I={0}'.format(i) for i in input]))
         cmd = cmd + " O={output}"
-        shell(cmd)
+        print(cmd)
+        shell(cmd,shell=True)

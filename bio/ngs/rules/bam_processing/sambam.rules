@@ -12,55 +12,47 @@ Parameters:
 __author__  = "Sean Davis <http://watson.nci.nih.gov/~sdavis>"
 __license__ = "MIT"
 
-bam_sort_memory=2000000000
+rule index_bam:
+    threads: 8
+    input: 
+        "{base}.bam"
+    output: 
+        "{base}.bam.bai"
+    params: batch="-l nodes=1:gpfs"
+    shell: "module load sambamba && sambamba index -t {threads} {input}"
 
-rule bam_index:
-    input:
-        "{prefix}.bam"
-    output:
-        "{prefix}.bam.bai"
-    shell:
-        "module load sambamba; sambamba index {input} {output}"
+rule indelrealigner:
+    input: bam="{base}.bam",
+           intervals="{base}.intervals",
+           bai='{base}.bam.bai'
+    output: bam=temp("{base}.realigned.bam")
+    params: batch="-l nodes=1:gpfs"
+    threads: 1
+    shell: "do this"
+ 
+#shell(gatk.indelrealigner(input.bam,output.bam,input.intervals,indelvcf='/data/CCRBioinfo/public/GATK/bundle/2.3/hg19/Mills_and_1000G_gold_standard.indels.hg19.vcf'))
 
+rule realignertargetcreator:
+    input: bam="{base}.bam",
+           bai="{base}.bam.bai"
+    output: "{base}.intervals"
+    params: batch="-l nodes=1:gpfs"
+    threads: 32
+    shell: "do this"
 
-rule bam_sort:
-    input:
-        "{prefix}.bam"
-    output:
-        "{prefix}.sorted.bam"
-    params:
-        memory: str(bam_sort_memory)
-    shell:
-        """module load samtools;\
-           samtools sort -m {params.memory} {input} {wildcards.prefix}.sorted"""
-
-
-rule bam_sort_name:
-    input:
-        "{prefix}.bam"
-    output:
-        "{prefix}.namesorted.bam"
-    params:
-        memory: str(bam_sort_memory)
-    shell:
-        """module load sambamba; \
-           sambamba sort -m {params.memory} -n {input} \
-           {wildcards.prefix}.namesorted"""
+#shell(gatk.realigntargetcreator(input[0],output,indelvcf='/data/CCRBioinfo/public/GATK/bundle/2.3/hg19/Mills_and_1000G_gold_standard.indels.hg19.vcf',mem='16g',threads=threads))
 
 
-rule sam_to_bam:
-    input:
-        "{prefix}.sam"
-    output:
-        "{prefix}.bam"
-    shell:
-        "samtools view -Sbh {input} > {output}"
 
 
-rule bam_stats:
-    input:
-        "{prefix}.bam"
-    output:
-        "{prefix}.idxstats.txt"
-    shell:
-        "samtools idxstats {input} > {output}"
+
+rule markdups:
+    threads: 1
+    input: '{base}.bam','{base}.bam.bai'
+    output: bam='{base}.md.bam',metrics='{base}.dupmetrics'
+    params: batch="-l nodes=1:gpfs"
+    version: "1.119"
+    shell: "module load picard/{version} && "
+        "java -jar $PICARDJARPATH/MarkDuplicates.jar "
+        "AS=true M={output.metrics} O={output.bam} "
+        "I={input[0]} REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=SILENT"
