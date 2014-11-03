@@ -1,10 +1,16 @@
+import itertools
+
 configfile: "config.json"
 
 localrules: final
 
 include: "serpentine/bio/ngs/rules/bam_processing/sambam.rules"
 include: "serpentine/bio/ngs/rules/mapping/bwa.rules"
+include: "serpentine/bio/ngs/rules/quality_control/fastqc.rules"
+
+print(config['units'])
 
 rule final:
-    input: expand("mapping/human_g1k_v37/samples/{sample}.md.bam",sample=config['samples'].keys())
+    input: expand("mapping/human_g1k_v37/samples/{sample}.md.bam",sample=config['samples'].keys()),
+           expand("{unit}_fastqc.zip", unit = [x.replace('.fastq.gz','') for x in itertools.chain(*config['units'].values())])
     params: batch='-l nodes=1:gpfs'

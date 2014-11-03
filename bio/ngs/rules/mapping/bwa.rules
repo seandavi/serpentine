@@ -115,7 +115,7 @@ rule bwa_mem_map:
         custom=config.get("params_bwa_mem", "")
     log: "mapping/log/{reference}/{unit}.log"
     threads: 64
-    shell: ". /usr/local/Modules/default/init/bash && module load bwa/{version} && "
+    shell: "module load bwa/{version} && "
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
         r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
@@ -131,11 +131,11 @@ rule merge_bwa_sample_bam:
                                  unit=SAMPLE_TO_UNIT[wildcards.sample],
                                  reference=wildcards.reference)
     output: 
-        temp("mapping/{reference}/samples/{sample,[^.]}.bam")
+        temp("mapping/{reference}/samples/{sample,\w+}.bam")
     threads: 2
     version: "1.119"
     run:  
-        cmd = """. /usr/local/Modules/default/init/bash && module load picard/{{version}} && java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}""".format(' '.join(['I={0}'.format(i) for i in input]))
+        cmd = """module load picard/{{version}} && java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}""".format(' '.join(['I={0}'.format(i) for i in input]))
         cmd = cmd + " O={output}"
         print(cmd)
         shell(cmd,shell=True)
