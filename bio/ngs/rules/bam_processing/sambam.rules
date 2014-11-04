@@ -21,31 +21,6 @@ rule index_bam:
     params: batch="-l nodes=1:gpfs"
     shell: "module load sambamba && sambamba index -t {threads} {input}"
 
-rule indelrealigner:
-    input: bam="{base}.bam",
-           intervals="{base}.intervals",
-           bai='{base}.bam.bai'
-    output: bam=temp("{base}.realigned.bam")
-    params: batch="-l nodes=1:gpfs"
-    threads: 1
-    shell: "do this"
- 
-#shell(gatk.indelrealigner(input.bam,output.bam,input.intervals,indelvcf='/data/CCRBioinfo/public/GATK/bundle/2.3/hg19/Mills_and_1000G_gold_standard.indels.hg19.vcf'))
-
-rule realignertargetcreator:
-    input: bam="{base}.bam",
-           bai="{base}.bam.bai"
-    output: "{base}.intervals"
-    params: batch="-l nodes=1:gpfs"
-    threads: 32
-    shell: "do this"
-
-#shell(gatk.realigntargetcreator(input[0],output,indelvcf='/data/CCRBioinfo/public/GATK/bundle/2.3/hg19/Mills_and_1000G_gold_standard.indels.hg19.vcf',mem='16g',threads=threads))
-
-
-
-
-
 rule markdups:
     threads: 1
     input: '{base}.bam','{base}.bam.bai'
