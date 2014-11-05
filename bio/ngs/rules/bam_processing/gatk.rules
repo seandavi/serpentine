@@ -14,7 +14,7 @@ rule gatk_base_recalibrator:
         dbsnp = config['resources']['dbsnp'],
         reference = lambda wc: config['references'][wc.reference]
     output:
-        "reports/{reference}/samples/{base}.recal_table"
+        "reports/{reference}/samples/recal/{base}.recal_table"
     params:
         batch = "-l nodes=1:gpfs -q ccr"
     threads:
@@ -50,7 +50,7 @@ rule gatk_print_reads:
         "-BQSR {input.recal_table} "
         "-o {output}"
  
-rule gatk_indel_target_creator:
+rule gatk_realigner_target_creator:
     input: 
         bam = "mapping/{reference}/samples/{sample}.recal.bam",
         dbsnp = config['resources']['dbsnp'],

@@ -1,3 +1,19 @@
+
+## Roadmap
+
+1. Implement germline workflow(s) for DNA
+   - bwa-freebayes
+       + bwa alignment
+	   + GATK processing
+	   + freebayes calling (multisample)
+   - reporting
+       + fastqc
+	   + duplicate metrics
+	   + recalibration tables
+	   + alignment stats
+2. Implement RNA-seq workflow
+3. Implement Somatic workflows
+
 ## Conventions
 
 - Sample names cannot have "/" or "." in them
