@@ -1,4 +1,9 @@
 
+## Introduction
+
+Serpentine is, so far, a collection of rules and workflows for NGS data processing.
+It is not yet a 
+
 ## Roadmap
 
 1. Implement germline workflow(s) for DNA
@@ -9,6 +14,11 @@
 	   + GATK VQSR
    - bwa-HaplotypeCaller
        + bwa alignment (100%)
+	   + GATK processing (80%)
+	   + freebayes calling (multisample)
+	   + GATK VQSR
+   - Novoalign-HaplotypeCaller
+       + novoalign alignment 
 	   + GATK processing (80%)
 	   + freebayes calling (multisample)
 	   + GATK VQSR
