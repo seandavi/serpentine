@@ -3,13 +3,19 @@
 
 1. Implement germline workflow(s) for DNA
    - bwa-freebayes
-       + bwa alignment
-	   + GATK processing
+       + bwa alignment (100%)
+	   + GATK processing (80%)
 	   + freebayes calling (multisample)
+	   + GATK VQSR
+   - bwa-HaplotypeCaller
+       + bwa alignment (100%)
+	   + GATK processing (80%)
+	   + freebayes calling (multisample)
+	   + GATK VQSR
    - reporting
-       + fastqc
-	   + duplicate metrics
-	   + recalibration tables
+       + fastqc (100%)
+	   + duplicate metrics (100%)
+	   + recalibration tables (100%)
 	   + alignment stats
 2. Implement RNA-seq workflow
 3. Implement Somatic workflows
