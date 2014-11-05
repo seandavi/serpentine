@@ -45,7 +45,7 @@ If you have questions, file a [new issue](https://github.com/seandavi/serpentine
 - Sample names cannot have "/" or "." in them
 - fastq files end in ".fastq.gz"
 
-## output locations
+### output locations
 
 ```
 $ tree -I 'serpentine|*fastqc*'
