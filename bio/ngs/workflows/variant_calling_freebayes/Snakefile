@@ -1,13 +1,26 @@
 import itertools
+import os
+
+# Environment variable for serpentine base directory location
+SERPENTINE_HOME='.'
+
+try:
+    SERPENTINE_HOME=os.environ['SERPENTINE_HOME']
+except KeyError:
+    pass
+
+def _get_rule_path(rule_file_path):
+    "Combines the serpentine base directory with serpentine rule paths"
+    return(os.path.join(SERPENTINE_HOME,rule_file_path))
 
 configfile: "config.json"
 
 localrules: final
 
-include: "serpentine/bio/ngs/rules/bam_processing/sambam.rules"
-include: "serpentine/bio/ngs/rules/mapping/bwa.rules"
-include: "serpentine/bio/ngs/rules/quality_control/fastqc.rules"
-include: "serpentine/bio/ngs/rules/bam_processing/gatk.rules"
+include: _get_rule_path("bio/ngs/rules/bam_processing/sambam.rules")
+include: _get_rule_path("bio/ngs/rules/mapping/bwa.rules")
+include: _get_rule_path("bio/ngs/rules/quality_control/fastqc.rules")
+include: _get_rule_path("bio/ngs/rules/bam_processing/gatk.rules")
 
 def _get_fastq_without_suffix():
     retval = [x.replace('.fastq.gz','') for x in 
