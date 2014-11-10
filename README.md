@@ -9,7 +9,7 @@ It is in development.
 To contribute to the project, you can:
 
 1. File a [new issue](https://github.com/seandavi/serpentine/issues/new)
-2. Fork the repository, make changes, and then make a pull request.
+2. [Fork](https://github.com/seandavi/serpentine/fork) the repository, make changes, and then make a pull request.
 
 If you have questions, file a [new issue](https://github.com/seandavi/serpentine/issues/new) and label as a question or [email me](mailto:seandavi@gmail.com).
 
