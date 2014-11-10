@@ -29,6 +29,7 @@ def _get_fastq_without_suffix():
 
 rule final:
     input: expand("mapping/human_g1k_v37/samples/{sample}.md.bam",sample=config['samples'].keys()),
-           expand("mapping/human_g1k_v37/samples/{sample}.md.recal.bam",sample=config['samples'].keys()),
+           expand("mapping/human_g1k_v37/samples/{sample}.md.realigned.bam",sample=config['samples'].keys()),
+           expand("mapping/human_g1k_v37/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys()),
            expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix())
     params: batch='-l nodes=1:gpfs'

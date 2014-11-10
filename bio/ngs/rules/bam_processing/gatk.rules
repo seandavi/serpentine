@@ -5,7 +5,15 @@
 __author__ = "Sean Davis <seandavi@gmail.com>"
 __license__ = "MIT"
 
+def _knownIndels_to_GATK(known):
+    """Convert a list of file locations to a format for the GATK command line"""
+    try:
+        return(' '.join(["-known " + x for x in known]))
+    except KeyError:
+        return(' ')
+
 GATK_VERSION="3.3-0"
+
 
 rule gatk_base_recalibrator:
     input: 
@@ -29,11 +37,12 @@ rule gatk_base_recalibrator:
         "-knownSites {input.dbsnp} "
         "-o {output}"
 
+
 rule gatk_print_reads:
     input: 
         bam = "mapping/{reference}/samples/{base}.bam",
         bai = "mapping/{reference}/samples/{base}.bam.bai",
-        recal_table = "reports/{reference}/samples/{base}.recal_table",
+        recal_table = "reports/{reference}/samples/recal/{base}.recal_table",
         reference = lambda wc: config['references'][wc.reference]
     output:
         "mapping/{reference}/samples/{base}.recal.bam"
@@ -42,51 +51,63 @@ rule gatk_print_reads:
     threads:
         8
     version: GATK_VERSION
-    shell: "module load gatk/{version} && "
+    shell: "module load GATK/{version} && "
         "java -Xmx4g -jar $GATKJAR "
         "-T PrintReads "
+        "-nct {threads} "
         "-I {input.bam} "
         "-R {input.reference} "
         "-BQSR {input.recal_table} "
         "-o {output}"
+
  
 rule gatk_realigner_target_creator:
     input: 
-        bam = "mapping/{reference}/samples/{sample}.recal.bam",
-        dbsnp = config['resources']['dbsnp'],
+        bam = "mapping/{reference}/samples/{base}.bam",
+        bai = "mapping/{reference}/samples/{base}.bam.bai",
+        known = config['resources']['knownIndels'],
         reference = lambda wc: config['references'][wc.reference]
     output:
-        "reports/{reference}/samples/{sample}.recal_table"
+        "mapping/{reference}/samples/{base}.intervals"
     params:
         batch = "-l nodes=1:gpfs"
     threads:
-        8
+        16
     version: GATK_VERSION
-    shell: "module load gatk/{version} && "
-        "java -Xmx4g -jar $GATKJAR "
-        "-T BaseRecalibrator "
-        "-I {input.bam} "
-        "-R {input.reference} "
-        "-knownSites {input.dbsnp} "
-        "-o {output}"
+    run:
+        knownIndels = _knownIndels_to_GATK(input.known)
+        shell("module load GATK/{version} && " +
+        "java -Xmx4g -jar $GATKJAR " +
+        "-T RealignerTargetCreator " +
+        "-I {input.bam} " +
+        "-R {input.reference} " +
+        "{knownIndels} " +
+        "-nt {threads} "
+        "-o {output}")
+
  
 rule gatk_indel_realigner:
     input: 
-        bam = "mapping/{reference}/samples/{sample}.recal.bam",
-        dbsnp = config['resources']['dbsnp'],
+        bam = "mapping/{reference}/samples/{base}.bam",
+        bai = "mapping/{reference}/samples/{base}.bam.bai",
+        known = config['resources']['knownIndels'],
+        intervals = "mapping/{reference}/samples/{base}.intervals",
         reference = lambda wc: config['references'][wc.reference]
     output:
-        temp("mapping/{reference}/samples/{sample}.recal_table")
+        temp("mapping/{reference}/samples/{base}.realigned.bam")
     params:
         batch = "-l nodes=1:gpfs"
     threads:
         8
     version: GATK_VERSION
-    shell: "module load gatk/{version} && "
-        "java -Xmx4g -jar $GATKJAR "
-        "-T BaseRecalibrator "
-        "-I {input.bam} "
-        "-R {input.reference} "
-        "-knownSites {input.dbsnp} "
-        "-o {output}"
+    run: 
+        knownIndels = _knownIndels_to_GATK(input.known)
+        shell("module load GATK/{version} && " +
+        "java -Xmx4g -jar $GATKJAR " +
+        "-T IndelRealigner " +
+        "-I {input.bam} " +
+        "-R {input.reference} " +
+        "{knownIndels} " +
+        "--targetIntervals {input.intervals} " +
+        "-o {output}")
  
