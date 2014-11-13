@@ -13,6 +13,12 @@ def _get_rule_path(rule_file_path):
     "Combines the serpentine base directory with serpentine rule paths"
     return(os.path.join(SERPENTINE_HOME,rule_file_path))
 
+def _get_fastq_without_suffix():
+    retval = [x.replace('.fastq.gz','') for x in 
+              itertools.chain.from_iterable(config['units'].values())]
+    return(retval)
+
+
 configfile: "config.json"
 
 localrules: final
@@ -21,15 +27,10 @@ include: _get_rule_path("bio/ngs/rules/bam_processing/sambam.rules")
 include: _get_rule_path("bio/ngs/rules/mapping/bwa.rules")
 include: _get_rule_path("bio/ngs/rules/quality_control/fastqc.rules")
 include: _get_rule_path("bio/ngs/rules/bam_processing/gatk.rules")
-
-def _get_fastq_without_suffix():
-    retval = [x.replace('.fastq.gz','') for x in 
-              itertools.chain.from_iterable(config['units'].values())]
-    return(retval)
+include: _get_rule_path("bio/ngs/rules/variant_calling/freebayes.rules")
 
 rule final:
-    input: expand("mapping/human_g1k_v37/samples/{sample}.md.bam",sample=config['samples'].keys()),
-           expand("mapping/human_g1k_v37/samples/{sample}.md.realigned.bam",sample=config['samples'].keys()),
-           expand("mapping/human_g1k_v37/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys()),
-           expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix())
+    input: expand("mapping/{reference}/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys(),reference=config['references'].keys()),
+           expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix()),
+           expand("variants/{reference}/bwa/freebayes/variants.vcf",reference=config['references'].keys())
     params: batch='-l nodes=1:gpfs'

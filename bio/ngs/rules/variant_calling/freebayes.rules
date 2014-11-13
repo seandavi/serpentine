@@ -1,0 +1,11 @@
+
+rule freebayes:
+    input: bam=expand("mapping/{{reference}}/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys()),
+           bai=expand("mapping/{{reference}}/samples/{sample}.md.realigned.recal.bam.bai",sample=config['samples'].keys()),
+           reference = lambda wc: config['references'][wc.reference]
+    output: "variants/{reference}/bwa/freebayes/variants.vcf"
+    params: batch="-l nodes=1:gpfs -q ccr"
+    version: "0.9.15-3"
+    run:
+        bams = " ".join('-b ' + bam for bam in input.bam)
+        shell("module load freebayes/{version} && freebayes -f {input.reference} --haplotype-length 50 {bams} -v {output}")
