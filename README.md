@@ -4,14 +4,6 @@
 Serpentine is, so far, a collection of rules and workflows for NGS data processing.
 It is in development.
 
-## Installation
-
-The easiest way to get serpentine is to clone the repository.
-
-```
-git clone https://github.com/NCI-CCR-GB/serpentine.git
-```
-
 ## Contributing
 
 To contribute to the project, you can:
@@ -75,3 +67,7 @@ variants/{reference}/{aligner}/{variant_caller}/variants.vcf
 ```
 QC/fastqc/FASTQNAME_fastqc/....
 ```
+
+### Config file example
+
+An example config file is [available here](https://github.com/NCI-CCR-GB/serpentine/blob/master/example/example.json).
