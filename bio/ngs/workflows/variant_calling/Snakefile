@@ -30,7 +30,9 @@ include: _get_rule_path("bio/ngs/rules/bam_processing/gatk.rules")
 include: _get_rule_path("bio/ngs/rules/variant_calling/freebayes.rules")
 
 rule final:
-    input: expand("mapping/{reference}/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys(),reference=config['references'].keys()),
+    input: expand("mapping/{reference}/{mapper}/samples/{sample}.md.realigned.recal.bam",sample=config['samples'].keys(),reference=config['references'].keys()),
            expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix()),
-           expand("variants/{reference}/bwa/freebayes/variants.vcf",reference=config['references'].keys())
+           expand("variants/{reference}/{mapper}/{varcaller}/all_variants.vcf",reference=config['references'].keys())
+           expand("variants/{reference}/{mapper}/{varcaller}/{sample}.vcf",reference=config['references'].keys())
     params: batch='-l nodes=1:gpfs'
+    
