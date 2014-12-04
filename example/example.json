@@ -1,4 +1,8 @@
 {
+    "workflow": {
+	"aligner": ['bwa'],
+	"varcaller": ["freebayes_multi","freebayes_single"]
+    },
     "references": {
         "human_g1k_v37": "/fdb/GATK_resource_bundle/b37-2.8/human_g1k_v37.fasta"
     },
