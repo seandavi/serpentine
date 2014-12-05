@@ -9,20 +9,20 @@ It is in development.
 The easiest way to get serpentine is to clone the repository.
 
 ```
-git clone https://github.com/NCI-CCR-GB/serpentine.git
+git clone https://github.com/zhujack/serpentine.git
 ```
 
 ## Contributing
 
 To contribute to the project, you can:
 
-1. File a [new issue](https://github.com/seandavi/serpentine/issues/new)
-2. [Fork](https://github.com/seandavi/serpentine/fork) the repository, make changes, and then make a pull request.
+1. File a [new issue](https://github.com/NCI-CCR-GB/serpentine/issues/new)
+2. [Fork](https://github.com/NCI-CCR-GB/serpentine/fork) the repository, make changes, and then make a pull request.
 
-If you have questions, file a [new issue](https://github.com/seandavi/serpentine/issues/new) and label as a question or [email me](mailto:seandavi@gmail.com).
+If you have questions, file a [new issue](https://github.com/NCI-CCR-GB/serpentine/issues/new) and label as a question or [email me](mailto:seandavi@gmail.com).
 
 
-## Roadmap
+## Roadmap (to be updated)
 
 1. Implement germline workflow(s) for DNA
    - bwa-freebayes
@@ -56,55 +56,78 @@ If you have questions, file a [new issue](https://github.com/seandavi/serpentine
 ### output locations
 
 ```
-$ tree -I 'serpentine|*fastqc*'
-.
-|-- RW1_ATCACG_L002.R1.250kreads.fastq.gz
-|-- RW1_ATCACG_L002.R2.250kreads.fastq.gz
-|-- RW2_CGATGT_L002.R1.250kreads.fastq.gz
-|-- RW2_CGATGT_L002.R2.250kreads.fastq.gz
-|-- RW3_TTAGGC_L003.R1.250kreads.fastq.gz
-|-- RW3_TTAGGC_L003.R2.250kreads.fastq.gz
-|-- RW4_TGACCA_L003.R1.250kreads.fastq.gz
-|-- RW4_TGACCA_L003.R2.250kreads.fastq.gz
-|-- RW5_ACAGTG_L003.R1.250kreads.fastq.gz
-|-- RW5_ACAGTG_L003.R2.250kreads.fastq.gz
-|-- config.json
-|-- mapping
-|   |-- human_g1k_v37
-|   |   |-- samples
-|   |   |   |-- RW1.bam.bai
-|   |   |   |-- RW1.dupmetrics
-|   |   |   |-- RW1.md.bam
-|   |   |   |-- RW2.bam.bai
-|   |   |   |-- RW2.dupmetrics
-|   |   |   |-- RW2.md.bam
-|   |   |   |-- RW3.bam.bai
-|   |   |   |-- RW3.dupmetrics
-|   |   |   |-- RW3.md.bam
-|   |   |   |-- RW4.bam.bai
-|   |   |   |-- RW4.dupmetrics
-|   |   |   |-- RW4.md.bam
-|   |   |   |-- RW5.bam.bai
-|   |   |   |-- RW5.dupmetrics
-|   |   |   `-- RW5.md.bam
-|   |   `-- units
-|   `-- log
-|       `-- human_g1k_v37
-|           |-- RW1_ATCACG_L002.log
-|           |-- RW2_CGATGT_L002.log
-|           |-- RW3_TTAGGC_L003.log
-|           |-- RW4_TGACCA_L003.log
-|           `-- RW5_ACAGTG_L003.log
-|-- resources
-|   `-- mapping
-|       |-- human_g1k_v37.amb
-|       |-- human_g1k_v37.ann
-|       |-- human_g1k_v37.bwt
-|       |-- human_g1k_v37.log
-|       |-- human_g1k_v37.pac
-|       `-- human_g1k_v37.sa
-|-- snakemake.log
-|-- snakemake.stats
-|-- submit.sh
+$ tree [analysis_dir]
+
+STUDY/
+`-- variant
+    `-- human_g1k_v37.bwamem
+        |-- freebayes_all.vcf.gz
+        |-- freebayes_all.vcf.gz.tbi
+        |-- unifieldgenotyper_all.vcf.gz
+        |-- unifieldgenotyper_all.vcf.gz.tbi
+        `-- unifieldgenotyper_all.vcf.idx
+SUBJECT/
+|-- NA12878
+|   `-- NA12878_DNA
+|       `-- human_g1k_v37.bwamem
+|           |-- bam
+|           |   |-- NA12878_DNA.final.bai
+|           |   |-- NA12878_DNA.final.bam
+|           |   |-- NA12878_DNA.final.bam.bai
+|           |   `-- NA12878_DNA.final.bam.tdf
+|           |-- freebayes
+|           |   |-- NA12878_DNA.freebayes.vcf.gz
+|           |   `-- NA12878_DNA.freebayes.vcf.gz.tbi
+|           |-- germline_compare
+|           |-- haplotypecaller
+|           |   |-- NA12878_DNA.haplotypecaller.vcf.gz
+|           |   |-- NA12878_DNA.haplotypecaller.vcf.gz.tbi
+|           |   `-- NA12878_DNA.haplotypecaller.vcf.idx
+|           |-- mutect
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.mutect.call_stats.txt
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.mutect.coverage.wig.txt
+|           |   |-- NA12878_DNA_vs_NA12892_DNA.mutect.call_stats.txt
+|           |   `-- NA12878_DNA_vs_NA12892_DNA.mutect.coverage.wig.txt
+|           |-- pindel
+|           |   |-- NA12878_DNA.pindel.txt
+|           |   |-- NA12878_DNA.pindel.vcf.gz
+|           |   |-- NA12878_DNA.pindel.vcf.gz.tbi
+|           |   |-- NA12878_DNA.pindel_BP
+|           |   |-- NA12878_DNA.pindel_CloseEndMapped
+|           |   |-- NA12878_DNA.pindel_D
+|           |   |-- NA12878_DNA.pindel_INT_final
+|           |   |-- NA12878_DNA.pindel_INV
+|           |   |-- NA12878_DNA.pindel_LI
+|           |   |-- NA12878_DNA.pindel_RP
+|           |   |-- NA12878_DNA.pindel_SI
+|           |   `-- NA12878_DNA.pindel_TD
+|           |-- platypus
+|           |   |-- NA12878_DNA.platypus.log
+|           |   |-- NA12878_DNA.platypus.vcf.gz
+|           |   `-- NA12878_DNA.platypus.vcf.gz.tbi
+|           |-- qc
+|           |   |-- NA12878_DNA.final.bam.base_distribution_by_cycle.pdf
+|           |   |-- NA12878_DNA.final.bam.base_distribution_by_cycle_metrics
+|           |   |-- NA12878_DNA.final.bam.insert_size_Histogram.pdf
+|           |   |-- NA12878_DNA.final.bam.insert_size_metrics
+|           |   |-- NA12878_DNA.final.bam.quality_by_cycle.pdf
+|           |   |-- NA12878_DNA.final.bam.quality_by_cycle_metrics
+|           |   |-- NA12878_DNA.final.bam.quality_distribution.pdf
+|           |   |-- NA12878_DNA.final.bam.quality_distribution_metrics
+|           |   `-- NA12878_DNA.final.bam.summetrics
+|           |-- strelka
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.strelka.indels.vcf.gz
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.strelka.indels.vcf.gz.tbi
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.strelka.snvs.vcf.gz
+|           |   |-- NA12878_DNA_vs_NA12891_DNA.strelka.snvs.vcf.gz.tbi
+|           |   |-- NA12878_DNA_vs_NA12892_DNA.strelka.indels.vcf.gz
+|           |   |-- NA12878_DNA_vs_NA12892_DNA.strelka.indels.vcf.gz.tbi
+|           |   |-- NA12878_DNA_vs_NA12892_DNA.strelka.snvs.vcf.gz
+|           |   `-- NA12878_DNA_vs_NA12892_DNA.strelka.snvs.vcf.gz.tbi
+|           `-- unifieldgenotyper
+|               |-- NA12878_DNA.unifieldgenotyper.vcf.gz
+|               |-- NA12878_DNA.unifieldgenotyper.vcf.gz.tbi
+|               `-- NA12878_DNA.unifieldgenotyper.vcf.idx
+..
 
 ```
