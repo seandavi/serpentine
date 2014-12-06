@@ -4,7 +4,9 @@ import collections
 from snakemake.exceptions import MissingInputException
 
 # Environment variable for serpentine base directory location
-SERPENTINE_HOME=['path2serpentine_clinomics']
+# May be set to the actual path the the serpentine directory
+# Using '.' assumes that serpentine is in the current directory
+SERPENTINE_HOME='.' 
 
 try:
     SERPENTINE_HOME=os.environ['SERPENTINE_HOME']
@@ -16,13 +18,14 @@ def _get_rule_path(rule_file_path):
     return(os.path.join(SERPENTINE_HOME,rule_file_path))
 
 def _get_fastq_without_suffix():
+    "To get the base fastq filenames"
     retval = [x.replace('.fastq.gz','') for x in 
               itertools.chain.from_iterable(config['units'].values())]
     return(retval)
 
 configfile: "config.json"
 
-## dic for entity conversion
+## dict for entity conversion
 UNIT_TO_LIBRARY = {}
 for lib,units in config['libraries'].items():
     for unit in units:
