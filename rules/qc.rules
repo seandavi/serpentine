@@ -1,0 +1,91 @@
+# rule fastqcSum:
+#     """
+#     summarize fastqc at different levels for comparizon purpose
+#     """
+#     input:
+#         FASTQS
+#     output:
+#         "STUDY/summary.fastqc.txt"
+#     params:
+#         batch = '-l nodes=1:gpfs'
+#     version: ""
+#     log: "STUDY/summary.fastqc.log"
+#     threads: 8
+#     shell:
+# """
+# ...
+# """
+
+rule fastqc:
+    """
+    fastqc data files will be saved to the same dir as the fastq files
+    """
+    input:
+        "{prefix}.fastq.gz"
+    output:
+        "{prefix}_fastqc.zip"
+    params: 
+        batch = '-l nodes=1:gpfs -q ccr'
+    version: "0.11.2"
+    log: "{prefix}_fastqc.log"
+    threads: 8
+    shell: """
+module load fastqc/{version}
+fastqc {input} > {log} 2>&1
+"""
+
+rule multiMetrics:
+    input: 
+        bam="{base}/bam/{sample}.final.bam",
+        bai="{base}/bam/{sample}.final.bam.bai",
+        reference = config['references'][config['reference']]
+    output:
+        "{base}/qc/{sample}.final.bam.summetrics",
+        "{base}/qc/{sample}.final.bam.insert_size_metrics",
+        "{base}/qc/{sample}.final.bam.quality_distribution_metrics",
+        "{base}/qc/{sample}.final.bam.quality_by_cycle_metrics"
+    params: 
+        batch="-l nodes=1:gpfs -q ccr",
+        outputBase="{base}/qc/{sample}.final.bam"
+    version: "1.119"
+    run:
+        shell("""
+module load picard/{version}
+java -jar ${{PICARDJARPATH}}/CollectMultipleMetrics.jar \
+REFERENCE_SEQUENCE={input.reference} \
+VALIDATION_STRINGENCY=SILENT \
+INPUT={input.bam} \
+OUTPUT={params.outputBase} \
+PROGRAM=CollectAlignmentSummaryMetrics \
+PROGRAM=CollectInsertSizeMetrics \
+PROGRAM=QualityScoreDistribution \
+PROGRAM=MeanQualityByCycle
+if [ -f {params.outputBase}.alignment_summary_metrics ];then
+    mv {params.outputBase}.alignment_summary_metrics {output[0]}
+fi
+""")
+
+# rule targetIntervals:
+#     input: "bam/{source}_{tn, \w+}.realigned.md.bam"
+#     output: "bam/{source}_{tn, \w+}.realigned.md.bam.intervals"
+#     params: batch="-l nodes=1:gpfs "
+#     shell: """
+# module load samtools
+# cat <(samtools view -H {input}) <(gawk '{{print $1 "\t" $2+1 "\t" $3 "\t+\tinterval_" NR}}' {targets_interval_list} )> {output}
+# """
+#
+# rule hsMetrics:
+#     input: "bam/{source}_{tn, \w+}.realigned.md.bam",  "bam/{source}_{tn, \w+}.realigned.md.bam.intervals"
+#     output: "bam/{source}_{tn, \w+}.realigned.md.bam.hsmetrics"
+#     params: batch="-l nodes=1:gpfs "
+#     shell: """
+# module load picard/1.94
+# java -jar ${{PICARDJARPATH}}/CalculateHsMetrics.jar \
+# BAIT_INTERVALS={input[1]} \
+# TARGET_INTERVALS={input[1]} \
+# INPUT={input[0]} \
+# OUTPUT={output} \
+# METRIC_ACCUMULATION_LEVEL=ALL_READS \
+# QUIET=true  \
+# VALIDATION_STRINGENCY=SILENT
+# """

@@ -1,0 +1,146 @@
+
+## pindel
+rule pindel:
+    input: 
+        bam="{base}/bam/{sample}.final.bam",
+        bai="{base}/bam/{sample}.final.bam.bai",
+        insertSize="{base}/qc/{sample}.final.bam.insert_size_metrics",
+        reference = config['references'][config['reference']]
+    output:
+        configPindel="{base}/pindel/{sample}.pindel.txt",
+        outputPindel=["{base}/pindel/{sample}.pindel_LI", 
+            "{base}/pindel/{sample}.pindel_TD", 
+            "{base}/pindel/{sample}.pindel_INV",
+            "{base}/pindel/{sample}.pindel_BP",
+            "{base}/pindel/{sample}.pindel_SI",
+            "{base}/pindel/{sample}.pindel_CloseEndMapped"]
+    params: 
+        batch="-l nodes=1:gpfs,mem=125gb -q ccr", 
+        pindelBase="{base}/pindel/{sample}.pindel"
+    threads: 32
+    version: "0.2.5"
+    shell: """
+module load pindel/{version}
+insertSize=`head -8 {input.insertSize} | tail -1 | cut -f1`
+if [ $insertSize -lt 250 ];then
+    insertSize=250
+fi
+echo \"{input.bam} $insertSize {wildcards.sample}\" > {output.configPindel}
+pindel \
+-T {threads} \
+-f {input.reference} \
+-i {output.configPindel} \
+-c ALL \
+-o {params.pindelBase}
+"""  
+
+# -j /data/CCRBioinfo/zhujack/snake/hg19_chr_co.bed \
+
+
+rule pindel2vcf:
+    input: 
+        outputPindel="{base}/pindel/{sample}.pindel_D",
+        reference=config['references'][config['reference']]
+    output:
+        "{base}/pindel/{sample}.pindel.vcf"
+    params: 
+        batch="-l nodes=1:gpfs,mem=125gb -q ccr",
+        pindelBase="{base}/pindel/{sample}.pindel"
+    threads: 32
+    version: "0.2.5"
+    shell: """
+module load pindel/{version}
+pindel2vcf \
+-e 3 -co 100 \
+-P {params.pindelBase} \
+-r {input.reference} \
+-R {reference} \
+-d {reference} -G
+"""
+
+## platypus
+rule platypus:
+    input: bam="{base}/bam/{sample}.final.bam",
+           bai="{base}/bam/{sample}.final.bam.bai",
+           reference = config['references'][config['reference']]
+    output: "{base}/platypus/{sample}.platypus.vcf"
+    params: batch="-l nodes=1:gpfs -q ccr"
+    threads: 32
+    version: "0.7.9.1"
+    log: "{base}/platypus/{sample}.platypus.log"
+    shell: """
+module load platypus/{version}
+python /data/ngs/usr/local/Platypus_{version}/Platypus.py callVariants \
+--nCPU {threads} \
+--bamFiles={input.bam} \
+--output={output} \
+--refFile={input.reference} \
+--logFileName={log}
+"""  
+
+
+## unifieldgenotyper
+rule UnifiedGenotyper:
+    input: bam="{base}/bam/{sample}.final.bam",
+           bai="{base}/bam/{sample}.final.bam.bai",
+           reference = config['references'][config['reference']]
+    output: 
+        "{base}/unifieldgenotyper/{sample}.unifieldgenotyper.vcf"
+    params: 
+        batch="-l nodes=1:gpfs -q ccr",
+        dbsnp=config["resources"]["dbsnp"]
+    threads: 32
+    version: "3.3-0"
+    shell: """
+module load GATK/{version}
+java -Xmx16g -Djava.io.tmpdir=/scratch/ -jar ${{GATKJAR}} \
+-nt {threads} \
+-rf BadCigar \
+-glm BOTH \
+-T UnifiedGenotyper \
+-R {input.reference} \
+-I {input.bam} \
+-o {output} \
+--dbsnp {params.dbsnp}
+"""  
+
+# -L /data/CCRBioinfo/zhujack/snake/hg19_chr_co.bed \
+
+
+## haplotypecaller
+rule HaplotypeCaller:
+    input: bam="{base}/bam/{sample}.final.bam",
+           bai="{base}/bam/{sample}.final.bam.bai",
+           reference = config['references'][config['reference']]
+    output: 
+        "{base}/haplotypecaller/{sample}.haplotypecaller.vcf"
+    params: 
+        batch="-l nodes=1:gpfs -q ccr",
+        dbsnp=config["resources"]["dbsnp"]
+    threads: 32
+    version: "3.3-0"
+    shell: """
+module load GATK/{version}
+java -Xmx16g -Djava.io.tmpdir=/scratch/ -jar ${{GATKJAR}} \
+-T HaplotypeCaller \
+-R {input.reference} \
+-I {input.bam} \
+-o {output} \
+--dbsnp {params.dbsnp}
+"""  
+
+
+## freebayes
+rule freebayes:
+    input: bam="{base}/bam/{sample}.final.bam",
+           bai="{base}/bam/{sample}.final.bam.bai",
+           reference = config['references'][config['reference']]
+    output: "{base}/freebayes/{sample}.freebayes.vcf"
+    params: batch="-l nodes=1:gpfs -q ccr"
+    version: "0.9.15-3"
+    run:
+        shell("""
+module load freebayes/{version}
+freebayes -f {input.reference} \
+--haplotype-length 50 -b {input.bam} -v {output}
+""")
