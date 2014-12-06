@@ -1,5 +1,6 @@
 ## somatic variants
 rule MuTect:
+    """Mutect somatic caller"""
     input: 
         lambda wildcards: somaticPairs[wildcards.somaticPair],
         reference = config['references'][config['reference']]
@@ -28,6 +29,7 @@ muTect \
 
 
 rule strelka:
+    """Strelka somatic caller"""
     input: 
         lambda wildcards: somaticPairs[wildcards.somaticPair],
         reference = config['references'][config['reference']]

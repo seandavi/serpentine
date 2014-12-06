@@ -17,9 +17,7 @@
 # """
 
 rule fastqc:
-    """
-    fastqc data files will be saved to the same dir as the fastq files
-    """
+    """fastqc data files will be saved to the same dir as the fastq files"""
     input:
         "{prefix}.fastq.gz"
     output:
@@ -35,6 +33,7 @@ fastqc {input} > {log} 2>&1
 """
 
 rule multiMetrics:
+    """picard CollectMultipleMetrics"""
     input: 
         bam="{base}/bam/{sample}.final.bam",
         bai="{base}/bam/{sample}.final.bam.bai",

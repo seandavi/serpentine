@@ -1,4 +1,5 @@
 rule UnifiedGenotyperM:
+    """GATK UnifiedGenotyper on multiple samples"""
     input: bam=BAMS,
            bai=BAIS,
            reference = config['references'][config['reference']]
@@ -56,6 +57,7 @@ java -Xmx16g -jar ~/bin/GenomeAnalysisTK.jar \
 
 ## Multiple sample freebayes
 rule freebayesM:
+    """Freebayes multisample"""
     input: bam=BAMS,
            bai=BAIS,
            reference = config['references'][config['reference']]
