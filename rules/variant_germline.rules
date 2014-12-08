@@ -40,7 +40,7 @@ pindel \
 rule pindel2vcf:
     input: 
         outputPindel="{base}/pindel/{sample}.pindel_D",
-        reference=config['references']
+        reference = config['references'][config['reference']]
     output:
         "{base}/pindel/{sample}.pindel.vcf"
     params: 
