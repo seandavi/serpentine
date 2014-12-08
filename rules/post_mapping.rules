@@ -39,7 +39,7 @@ rule gatk_print_reads:
     version: 
         config['gatkVersion']
     shell: """
-module load GATK/{version} \
+module load GATK/{version}
 java -Xmx4g -jar $GATKJAR \
 -T PrintReads \
 -nct {threads} \
@@ -80,7 +80,7 @@ rule gatk_realigner_target_creator:
         known = config['resources']['knownIndels'],
         reference = config['references'][config['reference']]
     output: 
-        temp("TEMP/{sample}.md.intervals")
+        "TEMP/{sample}.md.intervals"
     params:
         batch = "-l nodes=1:gpfs"
     threads:
@@ -89,7 +89,7 @@ rule gatk_realigner_target_creator:
     run:
         knownIndels = _knownIndels_to_GATK(input.known)
         shell("""
-module load GATK/{version} \
+module load GATK/{version}
 java -Xmx4g -jar $GATKJAR \
 -T RealignerTargetCreator \
 -I {input.bam} \
@@ -147,7 +147,7 @@ rule markdups:
     params: batch="-l nodes=1:gpfs"
     version: "1.119"
     shell: """
-module load picard/{version} \
+module load picard/{version}
 java -jar $PICARDJARPATH/MarkDuplicates.jar \
 AS=true M={output.metrics} \
 O={output.bam} \

@@ -53,11 +53,10 @@ rule bwamem_map:
 rule bwa_index_fasta:
     """Index fasta input for bwa.
 
-    This rule uses config['references'] to get a specific fasta 
+    This rule uses config['references'][config['reference']] to get a specific fasta 
     file for indexing. The index is created prior to mapping anything.
     """
-    input:
-        lambda wildcards: config['references'][wildcards.reference]
+    input: config['references'][config['reference']]
     output: SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.pac"
     log: SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.log"
     version: config['bwaVersion']
