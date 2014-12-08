@@ -62,7 +62,7 @@ If you have questions, file a [new issue](https://github.com/NCI-CCR-GB/serpenti
 
 ### output locations
 
-
+```
 $ tree [analysis_dir]
 
 STUDY/
@@ -136,6 +136,7 @@ SUBJECT/
 |               |-- NA12878_DNA.unifieldgenotyper.vcf.gz.tbi
 |               `-- NA12878_DNA.unifieldgenotyper.vcf.idx
 ..
+```
 
 - QC
 ```
