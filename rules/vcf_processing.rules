@@ -20,9 +20,11 @@ rule vcfSV2Bed:
     shell: "module unload python/3.3.2; module load anaconda; vcfSV2bed.py -s {params.minSomaticScore} {input} > {output}"
 
 rule tabix_vcf:
+    """Runs bgzip and tabix on a vcf file (that is uncompressed)"""
     input: "{base}.vcf"
     output: "{base}.vcf.gz","{base}.vcf.gz.tbi"
     params: batch='-l nodes=1:gpfs'
     shell: "module load tabix && "
            "bgzip {input} && "
            "tabix -p vcf {input}.gz"
+
