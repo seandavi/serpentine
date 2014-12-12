@@ -1,1 +1,23 @@
 ## rules can not be classified or some local rules
+
+
+rule ngCGH:
+    input: 
+        lambda wildcards: somaticPairs[wildcards.somaticPair]
+    output: 
+        "{anything}/ngcgh/{somaticPair}.cgh",
+        "{anything}/ngcgh/{somaticPair}.nexus"
+    params: 
+        batch="-l nodes=1:gpfs -q ccr"
+    version: "0.0.0"
+    threads: 32
+    shell: """
+/gpfs/gsfs2/users/CCRBioinfo/virtualenvs/py2.7.3/bin/ngCGH \
+-t {threads} \
+-o {output[0]} \
+{input[0]} \
+{input[2]}
+
+/gpfs/gsfs2/users/CCRBioinfo/virtualenvs/py2.7.3/bin/convert2nexus \
+{output[0]} > {output[1]}
+"""
