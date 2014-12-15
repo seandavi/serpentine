@@ -11,20 +11,42 @@ Requires:
 __author__  = "Sean Davis <http://watson.nci.nih.gov/~sdavis>"
 __license__ = "MIT"
 
+## not tested
 rule vcfSV2Bed:
     """Convert all SV records in a VCF file to bed records"""
-    input: "{base}.vcf"
-    output: "{base}.sv.bed"
+    input: "{base}.annotated.vcf"
+    output: "{base}.annotated.bed"
     threads: 1
     params: batch="-l nodes=1:gpfs", minSomaticScore="30"
     shell: "module unload python/3.3.2; module load anaconda; vcfSV2bed.py -s {params.minSomaticScore} {input} > {output}"
 
 rule tabix_vcf:
-    """Runs bgzip and tabix on a vcf file (that is uncompressed)"""
-    input: "{base}.vcf"
-    output: "{base}.vcf.gz","{base}.vcf.gz.tbi"
+    input: "{base}.annotated.vcf"
+    output: "{base}.annotated.vcf.gz","{base}.annotated.vcf.gz.tbi"
     params: batch='-l nodes=1:gpfs'
     shell: "module load tabix && "
-           "bgzip {input} && "
-           "tabix -p vcf {input}.gz"
+           "bgzip -f {input} && "
+           "tabix -f -p vcf {input}.gz"
 
+
+# rule VQSR_vcf:
+#     input: "{base}.vcf"
+#     output: "{base}.vcf.gz","{base}.vcf.gz.tbi"
+#     params: batch='-l nodes=1:gpfs'
+#     shell: "module load tabix && "
+#            "bgzip -f {input} && "
+#            "tabix -p vcf {input}.gz"
+#
+# java -Xmx4g -jar GenomeAnalysisTK.jar \
+#    -T VariantRecalibrator \
+#    -R reference/human_g1k_v37.fasta \
+#    -input NA12878.HiSeq.WGS.bwa.cleaned.raw.subset.b37.vcf \
+#    -resource:hapmap,known=false,training=true,truth=true,prior=15.0 hapmap_3.3.b37.sites.vcf \
+#    -resource:omni,known=false,training=true,truth=false,prior=12.0 1000G_omni2.5.b37.sites.vcf \
+#    -resource:dbsnp,known=true,training=false,truth=false,prior=6.0 dbsnp_135.b37.vcf \
+#    -an QD -an HaplotypeScore -an MQRankSum -an ReadPosRankSum -an FS -an MQ -an InbreedingCoeff \
+#    -mode SNP \
+#    -recalFile path/to/output.recal \
+#    -tranchesFile path/to/output.tranches \
+#    -rscriptFile path/to/output.plots.R
+# https://www.broadinstitute.org/gatk/guide/tooldocs/org_broadinstitute_gatk_tools_walkers_variantrecalibration_VariantRecalibrator.php

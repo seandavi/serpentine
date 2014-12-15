@@ -1,0 +1,71 @@
+##############################
+## rules for annatating vcf files
+##############################
+
+rule snpEff:
+    input: 
+        vcf="{base}.vcf",
+        reference = config['references'][config['reference']]
+    output:
+        "{base}.annotated.snpEff_summary.html",
+        "{base}.annotated.vcf"
+    params: 
+        batch="-l nodes=1:gpfs",
+        snpEff_genome=config["snpEff_genome"],
+        CosmicCodingMuts=config["resources"]['CosmicCodingMuts'],
+        dbsnp=config["resources"]['dbsnp'],
+        clinvar=config["resources"]['clinvar'],
+        ESP_snps=config["resources"]['ESP_snps']
+    threads: 32
+    version: "4.0"
+    shell: """
+module load snpEff/{version}
+java -Xmx16g -jar ${{SNPEFFHOME}}/SnpSift.jar \
+dbnsfp -a \
+{input.vcf} \
+| java -Xmx4g -jar ${{SNPEFFHOME}}/SnpSift.jar annotate {params.CosmicCodingMuts} /dev/stdin \
+| java -Xmx4g -jar ${{SNPEFFHOME}}/SnpSift.jar annotate {params.dbsnp} /dev/stdin \
+| java -Xmx4g -jar ${{SNPEFFHOME}}/SnpSift.jar annotate {params.clinvar} /dev/stdin \
+| java -Xmx4g -jar ${{SNPEFFHOME}}/SnpSift.jar  annotate {params.ESP_snps} /dev/stdin \
+| java -Xmx12g -jar ${{SNPEFFHOME}}/snpEff.jar \
+-c snpEff.config \
+-s {output[0]} \
+-canon {params.snpEff_genome} > {output[1]}
+
+#if [ ! -f {output[1]} ];then 
+#    touch {output[1]}
+#fi
+"""
+
+# -f  Ensembl_transcriptid,Uniprot_acc,Interpro_domain,SIFT_score,Polyphen2_HVAR_pred,GERP++_NR,GERP++_RS,29way_logOdds,1000Gp1_AF,1000Gp1_AFR_AF,1000Gp1_EUR_AF,1000Gp1_AMR_AF,1000Gp1_ASN_AF,ESP6500_AA_AF,ESP6500_EA_AF,Polyphen2_HVAR_score
+
+## not working
+rule vcf2text:
+    input:  "{base}.annotated.vcf"
+    output: "{base}.annotated.txt"
+    params: batch="-l nodes=1:gpfs ", sample=lambda wildcards: re.sub('\..*$', '', os.path.basename(wildcards.base))
+    threads: 1
+    shell: """
+module load R/3.0.0; cat {input} \
+| sed 's/<ID=dbNSFP_Polyphen2_HVAR_score,Number=A,Type=Float/<ID=dbNSFP_Polyphen2_HVAR_score,Number=A,Type=String/' \
+| sed 's/<ID=dbNSFP_Polyphen2_HVAR_pred,Number=A,Type=Character/<ID=dbNSFP_Polyphen2_HVAR_pred,Number=A,Type=String/' \
+| sed 's/<ID=dbNSFP_SIFT_score,Number=A,Type=Integer/<ID=dbNSFP_SIFT_score,Number=A,Type=String/' \
+| seqtool vcf melt -i -o {output} -s  {params.sample}
+if [ ! -f {output} ];then 
+    touch {output}
+fi
+"""
+
+
+# rule gatkannotatevcf:
+#     input: "variant/strelka/{source}/all.somatic.{variant}.annotated.vcf","bam/{source}/DNA/{source}_Normal.realigned.md.bam","bam/{
+# source}/DNA/{source}_Tumor.realigned.md.bam"
+#     output: "variant/strelka/{source}/all.somatic.{variant}.annotated.gatk.vcf","variant/strelka/{source}/all.somatic.{variant}.anno
+# tated.gatk.vcf.idx"
+#     params: batch="-l nodes=1:gpfs"
+#     threads: 8
+#     shell: "java -jar /usr/local/GATK/GenomeAnalysisTK.jar -T VariantAnnotator -rf BadCigar -nt {threads} -R /data/CCRBioinfo/public
+# /GATK/bundle/2.3/hg19/ucsc.hg19.fasta -I {input[1]} -I {input[2]} -V:VCF {input[0]} -U -o {output[0]} -A AlleleBalanceBySample -A Ma
+# ppingQualityZeroBySample -A MappingQualityZero -A QualByDepth -A ReadPosRankSumTest -A BaseQualityRankSumTest -A HaplotypeScore -A R
+# MSMappingQuality -A LowMQ -A HomopolymerRun -A BaseCounts -A FisherStrand -A SpanningDeletions"
+

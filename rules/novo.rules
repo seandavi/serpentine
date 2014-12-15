@@ -1,0 +1,88 @@
+## novoalign
+
+## novoalign
+
+rule addrg:
+    """Add rd group to novoalign """
+    input:
+        "TEMP/{unit}.novo.bam"
+    output:
+        "TEMP/{unit}.unit.bam"
+    version: "1.119"
+    params:
+        batch ="-l nodes=1:gpfs -q ccr",
+        output_prefix = "TEMP/{unit}.novo",
+        sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
+        library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
+        platform_unit='Hiseq2000',
+        platform=config.get("platform","Illumina")
+    log: "TEMP/{unit}.novo.log"
+    threads: 64
+    shell: """
+module load picard/{version}
+java -Xmx10g -jar ${{PICARDJARPATH}}/AddOrReplaceReadGroups.jar \
+RGID={wildcards.unit} \
+RGLB={params.sample} \
+RGPL={params.platform} \
+RGPU={params.platform_unit} \
+RGSM={params.sample} \
+I={input} \
+O={output} > {log} 2>&1
+"""
+
+# sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
+# library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
+# platform=config.get("platform","Illumina"),
+# r"-R '@RG\tID:{wildcards.unit}\t"
+# r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
+# "-t {threads} {params.bwa_index} {input.fastq}  2> {log} "     
+
+
+rule novoalign:
+    """Map individual units with novoalign
+
+    This rule uses the reference genome, after index creation,
+    and maps the reads. Read group info is added automatically
+    (LB, SM, PL, and ID).  Output is a coordinate-sorted BAM file.
+    The output file is marked as temp().
+    """
+    input:
+        index=lambda wildcards: SERPENTINE_HOME+"/resources/mapping/novoindex_"+ config['novoVersion'] +"/"+config['reference']+".index",
+        fastq=lambda wildcards: config["units"][wildcards.unit]
+    output:
+        "TEMP/{unit}.novo.bam"
+    version: config['novoVersion']
+    params:
+        batch ="-l nodes=1:gpfs -q ccr",
+        output_prefix = "TEMP/{unit}.novo"
+    log: "TEMP/{unit}.novo.log"
+    threads: 64
+    shell: """
+module load novocraft/{version}
+novoalign -d {input.index} \
+-f {input.fastq} \
+-a -k -o Sync \
+-c {threads} -o SAM \
+| samtools view -Sbh - \
+| samtools sort -m 30000000000 - {params.output_prefix}
+"""
+
+
+rule novo_index_fasta:
+    """Index fasta input for novo.
+
+    This rule uses config['references'][config['reference']] to get a specific fasta 
+    file for indexing. The index is created prior to mapping anything.
+    """
+    input: config['references'][config['reference']]
+    output: SERPENTINE_HOME + "/resources/mapping/novoindex_" + config['novoVersion'] + "/{reference}.index"
+    log: SERPENTINE_HOME + "/resources/mapping/novoindex_" + config['novoVersion'] + "/{reference}.log"
+    version: config['novoVersion']
+    params: batch='-l nodes=1:gpfs'
+    shell: """
+module load novocraft/{version}
+novoindex -m {output} {input}
+"""
+
+
+
