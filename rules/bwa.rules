@@ -1,4 +1,4 @@
-__author__  = "Johannes Köster (http://johanneskoester.bitbucket.org)"
+__author__  = "Johannes Koester (http://johanneskoester.bitbucket.org)"
 __license__ = "MIT"
 
 ### bwa.rules
@@ -26,7 +26,7 @@ rule bwamem_map:
     The output file is marked as temp().
     """
     input:
-        index=lambda wildcards: SERPENTINE_HOME+"/resources/mapping/bwaindex_"+ config['bwaVersion'] +"/"+config['reference']+".pac",
+        index=lambda wildcards: "resources/mapping/bwaindex_"+ config['bwaVersion'] +"/"+config['reference']+".pac",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
         "TEMP/{unit}.unit.bam"
@@ -36,13 +36,12 @@ rule bwamem_map:
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
         platform=config.get("platform","Illumina"),
-        bwa_index = lambda wildcards: SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/" + config['reference'],
+        bwa_index = lambda wildcards: "resources/mapping/bwaindex_" + config['bwaVersion'] + "/" + config['reference'],
         output_prefix = "TEMP/{unit}.unit",
         custom=config.get("params_bwa_mem", "")
-        
     log: "TEMP/{unit}.unit.log"
     threads: 64
-    shell: "module load bwa/{version} && "
+    shell: "module load bwa/0.7.10 && "
         "bwa mem {params.custom} "
         r"-R '@RG\tID:{wildcards.unit}\t"
         r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
@@ -58,9 +57,9 @@ rule bwa_index_fasta:
     """
     input:
         lambda wildcards: config['references'][wildcards.reference]
-    output: SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.pac"
-    log: SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.log"
+    output: "resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.pac"
+    log: "resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}.log"
     version: config['bwaVersion']
     params: batch='-l nodes=1:gpfs',
-        prefix=SERPENTINE_HOME + "/resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}"
-    shell: "module load bwa/{version} && bwa index -p {params.prefix} {input} 2> {log}"
+        prefix="resources/mapping/bwaindex_" + config['bwaVersion'] + "/{reference}"
+    shell: "module load bwa/0.7.10 && bwa index -p {params.prefix} {input} 2> {log}"
