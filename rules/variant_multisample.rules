@@ -1,16 +1,20 @@
+## variant calling for mutiple samples
+
 rule UnifiedGenotyperM:
     """GATK UnifiedGenotyper on multiple samples"""
     input: bam=BAMS,
            bai=BAIS,
            reference = config['references'][config['reference']]
-    output: VARIANTS_unifieldgenotyperM
+    output: "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/unifieldgenotyper_all.vcf"
     params: 
         batch="-l nodes=1:gpfs,mem=125gb -q ccr", 
         inBams=' '.join(["-I " + i for i in BAMS]),
         dbsnp=config["resources"]["dbsnp"]
     threads: 32
+    version: "3.3-0"
     shell: """
-java -Xmx16g -jar ~/bin/GenomeAnalysisTK.jar \
+module load GATK/{version}
+java -Xmx16g -Djava.io.tmpdir=/scratch/ -jar $GATKJAR \
 -nt {threads} \
 -rf BadCigar \
 -glm BOTH \
@@ -24,44 +28,13 @@ java -Xmx16g -jar ~/bin/GenomeAnalysisTK.jar \
 # -L /data/CCRBioinfo/zhujack/snake/hg19_chr_co.bed \
 
 
-# rule ugtStudyRecal:
-#     input: ugtStudyRaw
-#     output: temp('variant/unifiedgenotyper/normal_unifiedgenotyper.recal.vcf'),'variant/unifiedgenotyper/normal_unifiedgenotyper.recal.vcf.gz'
-#     params: batch="-l nodes=1:gpfs,mem=125gb", inBams=' '.join(["-I " + i for i in NORMALBAMS_list])
-#     threads: 32
-#     shell: """
-# java -Xmx16g -jar ~/bin/GenomeAnalysisTK.jar \
-# -T VariantRecalibrator \
-# -R {input.reference} \
-# -input {input} \
-# -resource:hapmap,known=false,training=true,truth=true,prior=15.0 {config.gatkBundle_dir}/hapmap_3.3.hg19.vcf \
-# -resource:omni,known=false,training=true,truth=false,prior=12.0 {config.gatkBundle_dir}/1000G_omni2.5.hg19.vcf \
-# -resource:1000G,known=false,training=true,truth=false,prior=10.0 {config.gatkBundle_dir}/1000G_phase1.snps.high_confidence.hg19.vcf \
-# -resource:dbsnp,known=true,training=false,truth=false,prior=2.0 {config.gatkBundle_dir}/dbsnp_137.hg19.vcf \
-# -an DP \
-# -an QD \
-# -an FS \
-# -an MQRankSum \
-# -an ReadPosRankSum \
-# -mode SNP \
-# -tranche 100.0 -tranche 99.9 -tranche 99.0 -tranche 90.0 \
-# -recalFile {output[0]} \
-# -tranchesFile {output[0]}.tranches \
-# -rscriptFile {output[0]}.plots.R
-#
-# bgzip -f -c {output[0]} > {output[1]}; tabix -p vcf {output[1]}
-# """
-
-# -L /data/CCRBioinfo/zhujack/snake/hg19_chr_co.bed \
-
-
 ## Multiple sample freebayes
 rule freebayesM:
     """Freebayes multisample"""
     input: bam=BAMS,
            bai=BAIS,
            reference = config['references'][config['reference']]
-    output: VARIANTS_freebayesM
+    output: "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/freebayes_all.vcf"
     params: batch="-l nodes=1:gpfs -q ccr"
     version: "0.9.15-3"
     run:

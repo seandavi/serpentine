@@ -13,6 +13,7 @@ rule pindel:
             "{base}/pindel/{sample}.pindel_INV",
             "{base}/pindel/{sample}.pindel_BP",
             "{base}/pindel/{sample}.pindel_SI",
+            "{base}/pindel/{sample}.pindel_D",
             "{base}/pindel/{sample}.pindel_CloseEndMapped"]
     params: 
         batch="-l nodes=1:gpfs,mem=125gb -q ccr", 
@@ -40,12 +41,13 @@ pindel \
 rule pindel2vcf:
     input: 
         outputPindel="{base}/pindel/{sample}.pindel_D",
-        reference=config['references'][config['reference']]
+        reference = config['references'][config['reference']]
     output:
         "{base}/pindel/{sample}.pindel.vcf"
     params: 
         batch="-l nodes=1:gpfs,mem=125gb -q ccr",
-        pindelBase="{base}/pindel/{sample}.pindel"
+        pindelBase="{base}/pindel/{sample}.pindel",
+        reference = config['reference']   
     threads: 32
     version: "0.2.5"
     shell: """
@@ -54,8 +56,9 @@ pindel2vcf \
 -e 3 -co 100 \
 -P {params.pindelBase} \
 -r {input.reference} \
--R {reference} \
--d {reference} -G
+-R {params.reference} \
+-d $(date +"%Y%m%d") \
+-G
 """
 
 ## platypus

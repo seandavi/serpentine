@@ -1,10 +1,14 @@
 {
+
+   
     "platform": "Illumina",
 	"reference": "human_g1k_v37",    
-	"aligner": "bwamem",
+	"aligner": "novo",
     "params_bwa_mem": "",
 	"bwaVersion": "0.7.10",
+	"novoVersion": "3.02.08",
 	"gatkVersion": "3.3-0",
+	"snpEff_genome": "GRCh37.75",
 	"germlineCallers": ["freebayes","unifieldgenotyper","platypus","pindel","haplotypecaller"],
 	"somaticCallers": ["strelka", "mutect"],
 	"references": {
@@ -14,7 +18,10 @@
 	"dbsnp": "/fdb/GATK_resource_bundle/b37-2.8/dbsnp_138.b37.vcf",
 	"cosmic": "/fdb/muTect/cosmic_v67.b37.vcf",
 	"knownIndels": ["/fdb/GATK_resource_bundle/b37-2.8/Mills_and_1000G_gold_standard.indels.b37.vcf",
-			"/fdb/GATK_resource_bundle/b37-2.8/1000G_phase1.indels.b37.vcf"]
+			"/fdb/GATK_resource_bundle/b37-2.8/1000G_phase1.indels.b37.vcf"],
+	"CosmicCodingMuts": "/data/CCRBioinfo/public/COSMIC/CosmicCodingMuts_v67_20131024.vcf",
+	"ESP_snps": "/data/CCRBioinfo/public/NHLBI_ESP/ESP6500SI-V2-SSA137.updatedRsIds.snps_indels.vcf",
+	"clinvar": "/data/CCRBioinfo/zhujack/source/data/clinvar_dbsnp138_GRCh37_20140211.vcf"
     },
     "genomic_intervals": {
     	"NA12878": "/data/CCRBioinfo/zhujack/source/data/TruSight-One-BED-May-2014.bed",
@@ -59,18 +66,19 @@
 		"L_RMS2096blood": ["RMS2096blood"]
     },
     "units": {
-		"NA12878rep1_4": ["../fastq/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep2_4": ["../fastq/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep3_4": ["../fastq/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep4_4": ["../fastq/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep1_4": ["../fastq/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep2_4": ["../fastq/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep3_4": ["../fastq/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep4_4": ["../fastq/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep1_4": ["../fastq/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep2_4": ["../fastq/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep3_4": ["../fastq/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep4_4": ["../fastq/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "../fastq/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"RMS2096blood": ["../fastq/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz", "../fastq/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz"]			
-			  }
+		"NA12878rep1_4": ["fastq/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12878rep2_4": ["fastq/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12878rep3_4": ["fastq/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12878rep4_4": ["fastq/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12891_rep1_4": ["fastq/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12891_rep2_4": ["fastq/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12891_rep3_4": ["fastq/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12891_rep4_4": ["fastq/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12892_rep1_4": ["fastq/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12892_rep2_4": ["fastq/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12892_rep3_4": ["fastq/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"NA12892_rep4_4": ["fastq/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "fastq/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+		"RMS2096blood": ["fastq/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz", "fastq/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz"]
+	}
 }
+

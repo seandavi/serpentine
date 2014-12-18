@@ -10,7 +10,7 @@ It is in development.
 The easiest way to get serpentine is to clone the repository.
 
 ```
-git clone https://github.com/zhujack/serpentine.git
+git clone https://github.com/NCI-CCR-GB/serpentine.git
 ```
 
 ## Contributing

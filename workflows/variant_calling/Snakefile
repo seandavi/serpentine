@@ -4,9 +4,7 @@ import collections
 from snakemake.exceptions import MissingInputException
 
 # Environment variable for serpentine base directory location
-# May be set to the actual path the the serpentine directory
-# Using '.' assumes that serpentine is in the current directory
-SERPENTINE_HOME='.' 
+SERPENTINE_HOME='/data/CCRBioinfo/zhujack/projects/serpentine'
 
 try:
     SERPENTINE_HOME=os.environ['SERPENTINE_HOME']
@@ -79,20 +77,22 @@ BAMS_all = [(BAM + ' ' + BAM + ".tdf " + BAM + ".bai").split(' ') for BAM in BAM
 ## metrics
 # DUPMETRICS = [BAM + ".dupmetrics" for BAM in BAMS]
 metricsBase = ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/qc/{sample}.final.bam".format(subject=SAMPLE_TO_SUBJECT[s], sample=s, reference=config['reference'], aligner=config['aligner']) for s in config['samples'].keys() ]
-METRICS_all = [ (BAM + ".summetrics " + BAM + ".insert_size_metrics " + BAM + ".quality_distribution_metrics " + BAM + ".quality_by_cycle_metrics").split(' ') for BAM in metricsBase]
+metrics_study = expand("STUDY/qc/{sample}.final.bam.{metrics}", sample=config['samples'].keys(), metrics=['dupmetrics'])
+METRICS_all = [ (BAM + ".summetrics " + BAM + ".insert_size_metrics " + BAM + ".quality_distribution_metrics " + BAM + ".quality_by_cycle_metrics").split(' ') for BAM in metricsBase] + metrics_study
 FASTQC = expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix())
 
 ## variants
 VARIANTS = []
 for caller in config['germlineCallers']:
-    VARIANTS += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/{caller}/{sample}.{caller}.vcf.gz".format(subject=SAMPLE_TO_SUBJECT[s], caller=caller, sample=s, reference=config['reference'],  aligner=config['aligner']) for s in config['samples'].keys() ]
+    VARIANTS += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/{caller}/{sample}.{caller}.annotated.txt".format(subject=SAMPLE_TO_SUBJECT[s], caller=caller, sample=s, reference=config['reference'],  aligner=config['aligner']) for s in config['samples'].keys() ]
 
 ## variant study
-VARIANTS_freebayesM = "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/freebayes_all.vcf.gz"
-VARIANTS_unifieldgenotyperM = "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/unifieldgenotyper_all.vcf.gz"
+VARIANTS_freebayesM = "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/freebayes_all.annotated.txt"
+VARIANTS_unifieldgenotyperM = "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/unifieldgenotyper_all.annotated.txt"
 
 ## strelka
 VARIANTS_somatic = []
+ngCGH_nexus = []
 somaticPairs = {}
 for pairedS in config['sample_references']:
     for pairedRef in config['sample_references'][pairedS]:
@@ -101,11 +101,12 @@ for pairedS in config['sample_references']:
         somaticPairs_bams = [pairedS_bam, pairedS_bam + ".bai", pairedRef_bam, pairedRef_bam + ".bai"]          
         somaticPairs[pairedS + "_vs_" + pairedRef] = somaticPairs_bams
         if 'strelka' in config['somaticCallers']:
-            VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/strelka/{sample}_vs_{ref_sample}.strelka.snvs.vcf.gz".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
-            VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/strelka/{sample}_vs_{ref_sample}.strelka.indels.vcf.gz".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
+            VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/strelka/{sample}_vs_{ref_sample}.strelka.snvs.annotated.txt".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
+            VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/strelka/{sample}_vs_{ref_sample}.strelka.indels.annotated.txt".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
         if 'mutect' in config['somaticCallers']:
             VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/mutect/{sample}_vs_{ref_sample}.mutect.call_stats.txt".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
             VARIANTS_somatic += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/mutect/{sample}_vs_{ref_sample}.mutect.coverage.wig.txt".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
+        ngCGH_nexus += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/ngcgh/{sample}_vs_{ref_sample}.nexus".format(subject=SAMPLE_TO_SUBJECT[pairedS], sample=pairedS, reference=config['reference'], aligner=config['aligner'], ref_sample=pairedRef)]
 
 
 rule final:
@@ -116,19 +117,31 @@ rule final:
         + VARIANTS \
         + FASTQC \
         + VARIANTS_somatic \
+        + ngCGH_nexus \
         , VARIANTS_freebayesM
         , VARIANTS_unifieldgenotyperM
 
-localrules: final
+localrules: final, index_bam
+
 
 include: _get_rule_path("rules/resources.rules")
-include: _get_rule_path("rules/bwa.rules")
+include: _get_rule_path("rules/" + config['aligner'] + ".rules")
 include: _get_rule_path("rules/post_mapping.rules")
 include: _get_rule_path("rules/qc.rules")
 include: _get_rule_path("rules/variant_germline.rules")
 include: _get_rule_path("rules/variant_somatic.rules")
 include: _get_rule_path("rules/variant_multisample.rules")
 include: _get_rule_path("rules/vcf_processing.rules")
+include: _get_rule_path("rules/annotatevcf.rules")
+include: _get_rule_path("rules/misc.rules")
+
+# ## not working
+# rule qcSum:
+#     input: BAMS
+#     output: 'STUDY/qc/dupmetricsSummary.txt', "STUDY/qc/qcMetrics.txt"
+#     params:  batch=" -l  nodes=1:gpfs -N r.qcS"
+#     shell: "do_qcSummary.R -I bam -O qc"
+
 
 
 

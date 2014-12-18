@@ -39,7 +39,7 @@ rule gatk_print_reads:
     version: 
         config['gatkVersion']
     shell: """
-module load GATK/{version} \
+module load GATK/{version}
 java -Xmx4g -jar $GATKJAR \
 -T PrintReads \
 -nct {threads} \
@@ -80,7 +80,7 @@ rule gatk_realigner_target_creator:
         known = config['resources']['knownIndels'],
         reference = config['references'][config['reference']]
     output: 
-        temp("TEMP/{sample}.md.intervals")
+        "TEMP/{sample}.md.intervals"
     params:
         batch = "-l nodes=1:gpfs"
     threads:
@@ -89,7 +89,7 @@ rule gatk_realigner_target_creator:
     run:
         knownIndels = _knownIndels_to_GATK(input.known)
         shell("""
-module load GATK/{version} \
+module load GATK/{version}
 java -Xmx4g -jar $GATKJAR \
 -T RealignerTargetCreator \
 -I {input.bam} \
@@ -138,21 +138,41 @@ module load sambamba/{version}
 sambamba index -t {threads} {input}
 """
 
+
 rule markdups:
     threads: 1
     input: "TEMP/{sample}.sample.bam",
            "TEMP/{sample}.sample.bam.bai"
     output: bam="TEMP/{sample}.md.bam",
-            metrics="TEMP/{sample}.final.bam.dupmetrics"
-    params: batch="-l nodes=1:gpfs"
+            metrics="STUDY/qc/{sample}.final.bam.dupmetrics"
+    params: 
+        batch="-l nodes=1:gpfs",
+        qc_dir = lambda wildcards: "SUBJECT/{subject}/{sample}/{reference}.{aligner}/qc/".format(subject=SAMPLE_TO_SUBJECT[wildcards.sample], sample=wildcards.sample,  reference=config['reference'], aligner=config['aligner'] )
     version: "1.119"
     shell: """
-module load picard/{version} \
+module load picard/{version}
 java -jar $PICARDJARPATH/MarkDuplicates.jar \
-AS=true M={output.metrics} \
+AS=true M={params.qc_dir} \
 O={output.bam} \
 I={input[0]} \
 REMOVE_DUPLICATES=false \
 VALIDATION_STRINGENCY=SILENT
+
+ln -fs ../../{params.qc_dir}{wildcards.sample}.final.bam.dupmetrics {output.metrics}
 """
+
+rule mergeBam2Sample:
+    params:
+        batch="-l nodes=1:gpfs"
+    input: lambda wildcards: expand("TEMP/{unit}.unit.bam", \
+                             unit = SAMPLE_TO_UNIT[wildcards.sample])
+    output:
+        "TEMP/{sample}.sample.bam"
+    threads: 2
+    version: "1.119"
+    run:
+        cmd = """module load picard/1.119 && java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}""".format(' '.join(['I={0}'.format(i) for i in input]))
+        cmd = cmd + " O={output}"
+        print(cmd)
+        shell(cmd,shell=True)
 

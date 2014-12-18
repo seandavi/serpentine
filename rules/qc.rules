@@ -62,6 +62,7 @@ PROGRAM=MeanQualityByCycle
 if [ -f {params.outputBase}.alignment_summary_metrics ];then
     mv {params.outputBase}.alignment_summary_metrics {output[0]}
 fi
+ln -fs ../../{output[0]} STUDY/qc/{wildcards.sample}.final.bam.summetrics
 """)
 
 # rule targetIntervals:
