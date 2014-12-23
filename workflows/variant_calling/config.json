@@ -1,17 +1,15 @@
 {
-
-   
     "platform": "Illumina",
-	"reference": "human_g1k_v37",    
-	"aligners": ["novo","bwamem"],
+    "reference": "human_g1k_v37",    
+    "aligners": ["novo","bwamem"],
     "params_bwa_mem": "",
-	"bwaVersion": "0.7.10",
-	"novoVersion": "3.02.08",
-	"gatkVersion": "3.3-0",
-	"snpEff_genome": "GRCh37.75",
-	"germlineCallers": ["freebayes","unifieldgenotyper","platypus","pindel","haplotypecaller"],
-	"somaticCallers": ["strelka", "mutect"],
-	"references": {
+    "bwaVersion": "0.7.10",
+    "novoVersion": "3.02.08",
+    "gatkVersion": "3.3-0",
+    "snpEff_genome": "GRCh37.75",
+    "germlineCallers": ["freebayes","unifieldgenotyper","platypus","pindel","haplotypecaller"],
+    "somaticCallers": ["strelka", "mutect"],
+    "references": {
         "human_g1k_v37": "/fdb/GATK_resource_bundle/b37-2.8/human_g1k_v37.fasta"
     },
     "resources": {
@@ -29,56 +27,49 @@
     	"NA12892": "/data/CCRBioinfo/zhujack/source/data/TruSight-One-BED-May-2014.bed",
     	"Sample_RMS2096blood": ""		
     },
-	"studies": {
-		"Illumina_NextSeq_500_TruSight_One_CEPH_Trio": ["NA12878", "NA12891", "NA12892"],
-		"RMS2096Study": ["RMS2096"]
-	},
-	"subjects": {
-		"NA12878": ["NA12878_DNA"],
-		"NA12891": ["NA12891_DNA"],
-		"NA12892": ["NA12892_DNA"],
-		"RMS2096": ["RMS2096blood_DNA"]
+    "sample_references": {
+	"NA12878_DNA": ["NA12891_DNA", "NA12892_DNA"],
+	"NA12891_DNA": ["NA12878_DNA", "NA12892_DNA"],
+	"NA12892_DNA": ["NA12878_DNA", "NA12891_DNA"]
     },
-	"sample_references": {
-		"NA12878_DNA": ["NA12891_DNA", "NA12892_DNA"],
-		"NA12891_DNA": ["NA12878_DNA", "NA12892_DNA"],
-		"NA12892_DNA": ["NA12878_DNA", "NA12891_DNA"]
-    },
-	"samples": {
-		"NA12878_DNA": ["L_NA12878rep1_4", "L_NA12878rep2_4", "L_NA12878rep3_4","L_NA12878rep4_4"],
-		"NA12891_DNA": ["L_NA12891_rep1_4", "L_NA12891_rep2_4", "L_NA12891_rep3_4","L_NA12891_rep4_4"],
-		"NA12892_DNA": ["L_NA12892_rep1_4", "L_NA12892_rep2_4", "L_NA12892_rep3_4","L_NA12892_rep4_4"],
-		"RMS2096blood_DNA": ["L_RMS2096blood"]
+    "samples": {
+	"_comment": "This block relates samples to libraries",
+	"NA12878_DNA": ["L_NA12878rep1_4", "L_NA12878rep2_4", "L_NA12878rep3_4","L_NA12878rep4_4"],
+	"NA12891_DNA": ["L_NA12891_rep1_4", "L_NA12891_rep2_4", "L_NA12891_rep3_4","L_NA12891_rep4_4"],
+	"NA12892_DNA": ["L_NA12892_rep1_4", "L_NA12892_rep2_4", "L_NA12892_rep3_4","L_NA12892_rep4_4"],
+	"RMS2096blood_DNA": ["L_RMS2096blood"]
     },
     "libraries": {
-		"L_NA12878rep1_4": ["NA12878rep1_4"],
-		"L_NA12878rep2_4": ["NA12878rep2_4"],
-		"L_NA12878rep3_4": ["NA12878rep3_4"],
-		"L_NA12878rep4_4": ["NA12878rep4_4"],
-		"L_NA12891_rep1_4": ["NA12891_rep1_4"],
-		"L_NA12891_rep2_4": ["NA12891_rep2_4"],
-		"L_NA12891_rep3_4": ["NA12891_rep3_4"],
-		"L_NA12891_rep4_4": ["NA12891_rep4_4"],
-		"L_NA12892_rep1_4": ["NA12892_rep1_4"],
-		"L_NA12892_rep2_4": ["NA12892_rep2_4"],
-		"L_NA12892_rep3_4": ["NA12892_rep3_4"],
-		"L_NA12892_rep4_4": ["NA12892_rep4_4"],
-		"L_RMS2096blood": ["RMS2096blood"]
+	"_comment": "This block relates libraries to 'units'",
+	"L_NA12878rep1_4": ["NA12878rep1_4"],
+	"L_NA12878rep2_4": ["NA12878rep2_4"],
+	"L_NA12878rep3_4": ["NA12878rep3_4"],
+	"L_NA12878rep4_4": ["NA12878rep4_4"],
+	"L_NA12891_rep1_4": ["NA12891_rep1_4"],
+	"L_NA12891_rep2_4": ["NA12891_rep2_4"],
+	"L_NA12891_rep3_4": ["NA12891_rep3_4"],
+	"L_NA12891_rep4_4": ["NA12891_rep4_4"],
+	"L_NA12892_rep1_4": ["NA12892_rep1_4"],
+	"L_NA12892_rep2_4": ["NA12892_rep2_4"],
+	"L_NA12892_rep3_4": ["NA12892_rep3_4"],
+	"L_NA12892_rep4_4": ["NA12892_rep4_4"],
+	"L_RMS2096blood": ["RMS2096blood"]
     },
     "units": {
-		"NA12878rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads//TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12878rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12891_rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"NA12892_rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
-		"RMS2096blood": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz"]
-	}
+	"_comment": "A 'unit' is the smallest packet of data produced by a sequencing experiment, typically a single library(demultiplexed) run in a single lane",
+	"NA12878rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads//TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAAGGCGAATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12878rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGTACTAGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12878rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AGGCAGAATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12878rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TCCTGAGCCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12891_rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GGACTCCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12891_rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/TAGGCATGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12891_rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CTCTCTACTCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12891_rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CAGAGAGGCTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12892_rep1_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GCTACGCTATAGAGAG_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12892_rep2_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/CGAGGCTGAGAGGATA_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12892_rep3_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/AAGAGGCATCTACTCT_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"NA12892_rep4_4": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/GTAGAGGACTCCTTAC_Illumina_NextSeq_500_TruSight_One_CEPH_Trio_replicates_4_250kreads_R2.fastq.gz"],
+	"RMS2096blood": ["/data/CCRBioinfo/fastq/test_data/fastq_250kreads/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz", "/data/CCRBioinfo/fastq/test_data/fastq_250kreads/Sample_RMS2096blood_E_C2FWPACXX_250kreads_R1.fastq.gz"]
+    }
 }
 
