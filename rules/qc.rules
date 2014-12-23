@@ -35,20 +35,19 @@ fastqc {input} > {log} 2>&1
 rule multiMetrics:
     """picard CollectMultipleMetrics"""
     input: 
-        bam="{base}/bam/{sample}.final.bam",
-        bai="{base}/bam/{sample}.final.bam.bai",
+        bam="{base}.bam",
+        bai="{base}.bam.bai",
         reference = config['references'][config['reference']]
     output:
-        "{base}/qc/{sample}.final.bam.summetrics",
-        "{base}/qc/{sample}.final.bam.insert_size_metrics",
-        "{base}/qc/{sample}.final.bam.quality_distribution_metrics",
-        "{base}/qc/{sample}.final.bam.quality_by_cycle_metrics"
+        "{base}.bam.alignment_summary_metrics",
+        "{base}.bam.insert_size_metrics",
+        "{base}.bam.quality_distribution_metrics",
+        "{base}.bam.quality_by_cycle_metrics"
     params: 
         batch="-l nodes=1:gpfs -q ccr",
-        outputBase="{base}/qc/{sample}.final.bam"
+        outputBase="{base}.bam"
     version: "1.119"
-    run:
-        shell("""
+    shell: """
 module load picard/{version}
 java -jar ${{PICARDJARPATH}}/CollectMultipleMetrics.jar \
 REFERENCE_SEQUENCE={input.reference} \
@@ -59,11 +58,7 @@ PROGRAM=CollectAlignmentSummaryMetrics \
 PROGRAM=CollectInsertSizeMetrics \
 PROGRAM=QualityScoreDistribution \
 PROGRAM=MeanQualityByCycle
-if [ -f {params.outputBase}.alignment_summary_metrics ];then
-    mv {params.outputBase}.alignment_summary_metrics {output[0]}
-fi
-ln -fs ../../{output[0]} STUDY/qc/{wildcards.sample}.final.bam.summetrics
-""")
+"""
 
 # rule targetIntervals:
 #     input: "bam/{source}_{tn, \w+}.realigned.md.bam"
