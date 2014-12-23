@@ -1,6 +1,16 @@
 __author__  = "Sean Davis & Jack Zhu"
 __license__ = "MIT"
 
+def _get_unit_bams_from_sample(wc):
+    ret = []
+    for u in SAMPLE_TO_UNIT[wc.sample]:
+        ret += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/bam/{unit}.unit.bam".format(unit=u,
+                                                                                                      sample=wc.sample,
+                                                                                                      subject=wc.subject,
+                                                                                                      reference=wc.reference,
+                                                                                                      aligner=wc.aligner)]
+    return(ret)
+
 def _knownIndels_to_GATK(known):
     """Convert a list of file locations to a format for the GATK command line"""
     try:
@@ -10,10 +20,10 @@ def _knownIndels_to_GATK(known):
 
 rule bamtdf:
     input:
-        bam="{base}/bam/{sample}.final.bam",
-        bai="{base}/bam/{sample}.final.bam.bai",
+        bam="{base}.bam",
+        bai="{base}.bam.bai",
     output: 
-        "{base}/bam/{sample}.final.bam.tdf"
+        "{base}.bam.tdf"
     params: 
         batch="-l nodes=1:gpfs -q ccr",
         genome = config['reference'].replace("human_g1k_v37", "1kg_v37")
@@ -27,12 +37,12 @@ count {input.bam} {output} {params.genome}
 
 rule gatk_print_reads:
     input:
-        bam = "TEMP/{sample}.realigned.bam",
-        bai = "TEMP/{sample}.realigned.bam.bai",
-        recal_table = "TEMP/{sample}.recal_table",
+        bam = "{base}.bam",
+        bai = "{base}.bam.bai",
+        recal_table = "{base}.bam.recal_table",
         reference = config['references'][config['reference']]
     output:
-        "{base}/{sample}.final.bam"
+        "{base}.recal.bam"
     params:
         batch = "-l nodes=1:gpfs -q ccr"
     threads: 8
@@ -51,12 +61,12 @@ java -Xmx4g -jar $GATKJAR \
 
 rule gatk_base_recalibrator:
     input:
-        bam = "TEMP/{sample}.realigned.bam",
-        bai = "TEMP/{sample}.realigned.bam.bai",
+        bam = "{base}.bam",
+        bai = "{base}.bam.bai",
         dbsnp = config['resources']['dbsnp'],
         reference = config['references'][config['reference']]
     output:
-        "TEMP/{sample}.recal_table"
+        "{base}.bam.recal_table"
     params:
         batch = "-l nodes=1:gpfs -q ccr"
     threads:
@@ -75,12 +85,12 @@ java -Xmx4g -jar $GATKJAR \
 
 rule gatk_realigner_target_creator:
     input:
-        bam = "TEMP/{sample}.md.bam",
-        bai = "TEMP/{sample}.md.bam.bai",
+        bam = "{base}.bam",
+        bai = "{base}.bam.bai",
         known = config['resources']['knownIndels'],
         reference = config['references'][config['reference']]
     output: 
-        "TEMP/{sample}.md.intervals"
+        "{base}.bam.intervals"
     params:
         batch = "-l nodes=1:gpfs"
     threads:
@@ -101,13 +111,13 @@ java -Xmx4g -jar $GATKJAR \
 
 rule gatk_indel_realigner:
     input:
-        bam = "TEMP/{sample}.md.bam",
-        bai = "TEMP/{sample}.md.bam.bai",
+        bam = "{base}.bam",
+        bai = "{base}.bam.bai",
         known = config['resources']['knownIndels'],
-        intervals = "TEMP/{sample}.md.intervals",
+        intervals = "{base}.bam.intervals",
         reference = config['references'][config['reference']]
     output:
-        "TEMP/{sample}.realigned.bam"
+        "{base}.realigned.bam"
     params:
         batch = "-l nodes=1:gpfs"
     threads: 8
@@ -141,36 +151,33 @@ sambamba index -t {threads} {input}
 
 rule markdups:
     threads: 1
-    input: "TEMP/{sample}.sample.bam",
-           "TEMP/{sample}.sample.bam.bai"
-    output: bam="TEMP/{sample}.md.bam",
-            metrics="STUDY/qc/{sample}.final.bam.dupmetrics"
+    input: "{base}.bam",
+           "{base}.bam.bai"
+    output: bam="{base}.md.bam",
+            metrics="{base}.bam.dupmetrics"
     params: 
-        batch="-l nodes=1:gpfs",
-        qc_dir = lambda wildcards: "SUBJECT/{subject}/{sample}/{reference}.{aligner}/qc/".format(subject=SAMPLE_TO_SUBJECT[wildcards.sample], sample=wildcards.sample,  reference=config['reference'], aligner=config['aligner'] )
+        batch="-l nodes=1:gpfs"
     version: "1.119"
     shell: """
 module load picard/{version}
 java -jar $PICARDJARPATH/MarkDuplicates.jar \
-AS=true M={params.qc_dir} \
+AS=true M={output.metrics} \
 O={output.bam} \
 I={input[0]} \
 REMOVE_DUPLICATES=false \
 VALIDATION_STRINGENCY=SILENT
-
-ln -fs ../../{params.qc_dir}{wildcards.sample}.final.bam.dupmetrics {output.metrics}
 """
 
 rule mergeBam2Sample:
     params:
         batch="-l nodes=1:gpfs"
-    input: lambda wildcards: expand("TEMP/{unit}.unit.bam", \
-                             unit = SAMPLE_TO_UNIT[wildcards.sample])
+    input: _get_unit_bams_from_sample
     output:
-        "TEMP/{sample}.sample.bam"
+        "SUBJECT/{subject,\w+}/{sample,\w+}/{reference,\w+}.{aligner,\w+}/bam/{sample}.bam"
     threads: 2
     version: "1.119"
     run:
+        print(wildcards)
         cmd = """module load picard/1.119 && java -jar $PICARDJARPATH/MergeSamFiles.jar AS=true USE_THREADING=true VALIDATION_STRINGENCY=SILENT {0}""".format(' '.join(['I={0}'.format(i) for i in input]))
         cmd = cmd + " O={output}"
         print(cmd)
