@@ -15,7 +15,7 @@ rule bwamem_map:
         index=lambda wildcards: "resources/mapping/bwaindex_"+ config['bwaVersion'] +"/"+config['reference']+".pac",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
-        "TEMP/{unit}.unit.bam"
+        temp("SUBJECT/{subject}/{sample}/{reference}.bwamem/bam/{unit,\w+}.unit.bam")
     version: config['bwaVersion']
     params:
         batch ="-l nodes=1:gpfs -q ccr",
@@ -23,9 +23,9 @@ rule bwamem_map:
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
         platform=config.get("platform","Illumina"),
         bwa_index = lambda wildcards: "resources/mapping/bwaindex_" + config['bwaVersion'] + "/" + config['reference'],
-        output_prefix = "TEMP/{unit}.unit",
+        output_prefix = "SUBJECT/{subject}/{sample}/{reference}.bwa/bam/{unit}.unit.bam",
         custom=config.get("params_bwa_mem", "")
-    log: "TEMP/{unit}.unit.log"
+    log: "SUBJECT/{subject}/{sample}/{reference}.bwamem/bam/{unit}.bwa.log"
     threads: 64
     shell: "module load bwa/0.7.10 && "
         "bwa mem {params.custom} "
