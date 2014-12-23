@@ -4,6 +4,31 @@
 Serpentine is, so far, a collection of rules and workflows for NGS data processing.
 It is in development.
 
+## Current capabilities
+
+Serpentine can run workflows composed of any combination of the following steps.  
+
+- aligners: 
+    - novoalign
+    - bwa-mem
+- postprocessing: 
+    - Duplicate marking
+    - realignment around indels
+    - base quality recalibration
+- variant callers:
+    - germline:
+        - UnifiedGenotyper
+        - HaplotypeCaller
+        - Freebayes
+        - platypus
+        - pindel
+- metrics:
+    - insert size
+    - quality metrics
+    - alignment summary metrics
+    - duplication metrics
+
+
 =======
 ## Installation
 
