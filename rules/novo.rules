@@ -1,43 +1,5 @@
 ## novoalign
 
-## novoalign
-
-rule addrg:
-    """Add rd group to novoalign """
-    input:
-        "TEMP/{unit}.novo.bam"
-    output:
-        "TEMP/{unit}.unit.bam"
-    version: "1.119"
-    params:
-        batch ="-l nodes=1:gpfs -q ccr",
-        output_prefix = "TEMP/{unit}.novo",
-        sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
-        library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
-        platform_unit='Hiseq2000',
-        platform=config.get("platform","Illumina")
-    log: "TEMP/{unit}.novo.log"
-    threads: 64
-    shell: """
-module load picard/{version}
-java -Xmx10g -jar ${{PICARDJARPATH}}/AddOrReplaceReadGroups.jar \
-RGID={wildcards.unit} \
-RGLB={params.sample} \
-RGPL={params.platform} \
-RGPU={params.platform_unit} \
-RGSM={params.sample} \
-I={input} \
-O={output} > {log} 2>&1
-"""
-
-# sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
-# library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit],
-# platform=config.get("platform","Illumina"),
-# r"-R '@RG\tID:{wildcards.unit}\t"
-# r"SM:{params.sample}\tLB:{params.library}\tPL:{params.platform}' "
-# "-t {threads} {params.bwa_index} {input.fastq}  2> {log} "     
-
-
 rule novoalign:
     """Map individual units with novoalign
 
@@ -50,19 +12,21 @@ rule novoalign:
         index=lambda wildcards: SERPENTINE_HOME+"/resources/mapping/novoindex_"+ config['novoVersion'] +"/"+config['reference']+".index",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
-        "TEMP/{unit}.novo.bam"
+        temp("SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit,\w+}.unit.bam")
     version: config['novoVersion']
     params:
         batch ="-l nodes=1:gpfs -q ccr",
-        output_prefix = "TEMP/{unit}.novo"
-    log: "TEMP/{unit}.novo.log"
+        output_prefix = "SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit,\w+}.unit",
+        sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
+        library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit]
+    log: "SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit}.novo.log"
     threads: 64
     shell: """
 module load novocraft/{version}
 novoalign -d {input.index} \
 -f {input.fastq} \
 -a -k -o Sync \
--c {threads} -o SAM \
+-c {threads} -o SAM $'@RG\tID:{wildcards.unit}\tPU:{wildcards.unit}\tLB:{params.library}\tSM:{params.sample}\tPL:Illumina'\
 | samtools view -Sbh - \
 | samtools sort -m 30000000000 - {params.output_prefix}
 """
