@@ -4,9 +4,8 @@ __license__ = "MIT"
 def _get_unit_bams_from_sample(wc):
     ret = []
     for u in SAMPLE_TO_UNIT[wc.sample]:
-        ret += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/bam/{unit}.unit.bam".format(unit=u,
+        ret += ["RESULTS/{reference}.{aligner}/{sample}/{unit}.unit.bam".format(unit=u,
                                                                                                       sample=wc.sample,
-                                                                                                      subject=wc.subject,
                                                                                                       reference=wc.reference,
                                                                                                       aligner=wc.aligner)]
     return(ret)
@@ -173,7 +172,7 @@ rule mergeBam2Sample:
         batch="-l nodes=1:gpfs"
     input: _get_unit_bams_from_sample
     output:
-        "SUBJECT/{subject,\w+}/{sample,\w+}/{reference,\w+}.{aligner,\w+}/bam/{sample}.bam"
+        "RESULTS/{reference,\w+}.{aligner,\w+}/{sample,\w+}/{sample}.bam"
     threads: 2
     version: "1.119"
     run:

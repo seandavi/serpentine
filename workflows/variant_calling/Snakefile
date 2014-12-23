@@ -72,7 +72,10 @@ for unit,study in UNIT_TO_STUDY.items():
 
 
 ## bam files
-BAMS = ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/bam/{sample}.md.realigned.recal.bam".format(subject=SAMPLE_TO_SUBJECT[s], sample=s, reference=config['reference'],aligner=config['aligner']) for s in config['samples'].keys() ]
+BAMS = expand("RESULTS/{reference}.{aligner}/{sample}/{sample}.md.realigned.recal.bam",
+              sample=config['samples'].keys(), 
+              reference=config['reference'],
+              aligner=config['aligners'])
 BAIS = [BAM + ".bai" for BAM in BAMS]
 BAMS_all = [(BAM + ' ' + BAM + ".tdf " + BAM + ".bai").split(' ') for BAM in BAMS]
 
@@ -85,9 +88,11 @@ METRICS_all = expand('{bam}.{metrics}',bam=BAMS,metrics=['alignment_summary_metr
 FASTQC = expand("{unit}_fastqc.zip", unit = _get_fastq_without_suffix())
 
 ## variants
-VARIANTS = []
-for caller in config['germlineCallers']:
-    VARIANTS += ["SUBJECT/{subject}/{sample}/{reference}.{aligner}/bam/{sample}.md.realigned.recal.{caller}.annotated.txt".format(subject=SAMPLE_TO_SUBJECT[s], caller=caller, sample=s, reference=config['reference'],  aligner=config['aligner']) for s in config['samples'].keys() ]
+VARIANTS = expand("RESULTS/{reference}.{aligner}/{sample}/{sample}.md.realigned.recal.{caller}.annotated.txt",
+                  caller=config['germlineCallers'],
+                  sample=config['samples'].keys(), 
+                  reference=config['reference'],
+                  aligner=config['aligners'])
 
 ## variant study
 #VARIANTS_freebayesM = "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/freebayes_all.annotated.txt"
@@ -118,7 +123,7 @@ rule final:
         BAMS \
         + METRICS_all \
         + VARIANTS \
-        + FASTQC \
+        + FASTQC 
 #        + VARIANTS_somatic
 #        + ngCGH_nexus \
 #        , VARIANTS_freebayesM
@@ -129,7 +134,6 @@ localrules: final, index_bam
 # aligners
 include: _get_rule_path("rules/bwamem.rules")
 include: _get_rule_path("rules/novo.rules")
-
 include: _get_rule_path("rules/resources.rules")
 
 # BAM processing

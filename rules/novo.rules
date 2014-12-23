@@ -12,14 +12,14 @@ rule novoalign:
         index=lambda wildcards: SERPENTINE_HOME+"/resources/mapping/novoindex_"+ config['novoVersion'] +"/"+config['reference']+".index",
         fastq=lambda wildcards: config["units"][wildcards.unit]
     output:
-        temp("SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit,\w+}.unit.bam")
+        temp("RESULTS/{reference}.novo/{sample}/{unit,\w+}.unit.bam")
     version: config['novoVersion']
     params:
         batch ="-l nodes=1:gpfs -q ccr",
-        output_prefix = "SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit,\w+}.unit",
+        output_prefix = "RESULTS/{reference}.novo/{sample}/{unit,\w+}.unit",
         sample =lambda wildcards: UNIT_TO_SAMPLE[wildcards.unit],
         library=lambda wildcards: UNIT_TO_LIBRARY[wildcards.unit]
-    log: "SUBJECT/{subject}/{sample}/{reference}.novo/bam/{unit}.novo.log"
+    log: "RESULTS/{reference}.novo/{sample}/{unit}.novo.log"
     threads: 64
     shell: """
 module load novocraft/{version}
