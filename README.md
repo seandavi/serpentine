@@ -6,7 +6,7 @@ It is in development.
 
 ## Current capabilities
 
-Serpentine can run workflows composed of any combination of the following steps.  
+Serpentine can run workflows composed of any combination of the following steps.  The steps are run in a fully-parallel manner based on job dependencies and available resources.  The whole process is driven by a json config file [(example config file)](https://github.com/NCI-CCR-GB/serpentine/blob/master/workflows/variant_calling/config.json).
 
 - aligners: 
     - novoalign
