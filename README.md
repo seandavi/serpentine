@@ -28,6 +28,10 @@ Serpentine can run workflows composed of any combination of the following steps.
     - alignment summary metrics
     - duplication metrics
 
+## Graphical representation of variant calling workflow
+
+![](https://raw.githubusercontent.com/NCI-CCR-GB/serpentine/master/workflows/variant_calling/serpentine.jpg)
+
 
 =======
 ## Installation
