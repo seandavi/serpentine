@@ -1,12 +1,11 @@
 
 ## Introduction
 
-Serpentine is, so far, a collection of rules and workflows for NGS data processing.
-It is in development.
+Serpentine is a project that leverages the snakemake workflow management to create a flexible, efficient, and highly parallelizable pipelines for data analysis.  The current focus is on DNA sequence analysis, but there is no limitation on the workflows that can be implemented.  We have definite plans for RNA-seq and combined RNA/DNA pipelines in the works.  Additional pipeline suggestions are welcome. 
 
 ## Current capabilities
 
-Serpentine can run workflows composed of any combination of the following steps.  The steps are run in a fully-parallel manner based on job dependencies and available resources.  The whole process is driven by a json config file [(example config file)](https://github.com/NCI-CCR-GB/serpentine/blob/master/workflows/variant_calling/config.json).
+Serpentine can currently run workflows composed of any combination of the following steps.  The steps are run in a fully-parallel manner based on job dependencies and available resources.  The whole process is driven by a json config file [(example config file)](https://github.com/NCI-CCR-GB/serpentine/blob/master/workflows/variant_calling/config.json).
 
 - aligners: 
     - novoalign
