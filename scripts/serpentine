@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+import argparse
+from serpentine.utils import _list_workflows,_list_rules
+
+
+parser = argparse.ArgumentParser()
+subparser = parser.add_subparsers(help='Subcommand help')
+
+rules = subparser.add_parser('rules',help='list rule files')
+rules.set_defaults(func=_list_rules)
+
+workflows = subparser.add_parser('workflows',help='list workflows')
+workflows.set_defaults(func=_list_workflows)
+
+args = parser.parse_args()
+args.func(args)
