@@ -1,8 +1,15 @@
 import csv
+from serpentine.utils import list_rules
 
 STAR_OUTDIR='bam/{source}/RNA/STAR/'
 
 ss=[]
+
+config['references']={'a':'abc'}
+config['reference']='a'
+config['gatkVersion']='123'
+config['resources']={'dbsnp':'abc'}
+config['resources']['knownIndels']='abc'
 
 with open(config['samplesheet'],'r') as csvfile:
     reader = csv.DictReader(csvfile,delimiter='\t')
@@ -26,15 +33,17 @@ def source2fastq(wc):
     return(ret)
 
 
+include: list_rules()[4]
+
 localrules: final
 
 rule final:
         params: batch="-q ccr -l nodes=1"
-        input: expand(STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam",source=sources)
+        input: expand(STAR_OUTDIR+"/Aligned.sortedByCoord.out.md.bam.bai",source=sources)
         
 rule rnaalignment:
     input:  lambda wildcards: source2fastq(wildcards)['fastq']
-    output: STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam",
+    output: temp(STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam"),
             STAR_OUTDIR+"/Chimeric.out.junction",
             STAR_OUTDIR+"/Chimeric.out.sam"
     params:  batch="-q ccr -l nodes=1:g128",outdir=STAR_OUTDIR
@@ -47,7 +56,6 @@ rule rnaalignment:
         rg = " , ".join(["ID:{ID} LB:{LB} SM:{SM} PL:Illumina".format(**s) for s in source2fastq(wildcards)['rg']])
         #rg = ",".join(["ID:"+res[0] for res in source2fastq(wildcards)['rg']])
         shell("""mkdir -p {params.outdir}
-clearscratch
 module load STAR/{version}
 module load samtools
 STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
@@ -64,7 +72,8 @@ STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
         --outTmpDir /scratch/tmp \
         --outSAMattrRGline {rg} \
         --outSAMunmapped Within \
-        --sjdbOverhang 60
+        --sjdbOverhang 60 \
+        --readFilesCommand zcat
 """)
 
 rule rnapostalignment:
