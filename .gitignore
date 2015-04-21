@@ -1,4 +1,7 @@
 \#*
 .#*
 *.pyc
+*~build
+.python-version
 *~
+build
