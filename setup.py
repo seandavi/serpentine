@@ -8,7 +8,8 @@ setup(name='Serpentine',
       author='Sean Davis & Jack Zhu',
       author_email='seandavi@gmail.com',
       url='https://github.com/seandavi/serpentine',
-      package_data={'rules': ['rules/*.rules'],
-                    'workflows': ['workflows']}
-      #scripts=['scripts/*']
+      packages=['serpentine'],
+      package_data={'': ['supporting/rules/*','supporting/workflows/*/*','supporting/cluster/*']},
+      include_package_data=True,
+      scripts=['scripts/serpentine']
      )

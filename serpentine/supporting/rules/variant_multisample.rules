@@ -1,0 +1,43 @@
+## variant calling for mutiple samples
+
+rule UnifiedGenotyperM:
+    """GATK UnifiedGenotyper on multiple samples"""
+    input: bam=BAMS,
+           bai=BAIS,
+           reference = config['references'][config['reference']]
+    output: "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/unifieldgenotyper_all.vcf"
+    params: 
+        batch="-l nodes=1:gpfs,mem=125gb -q ccr", 
+        inBams=' '.join(["-I " + i for i in BAMS]),
+        dbsnp=config["resources"]["dbsnp"]
+    threads: 32
+    version: "3.3-0"
+    shell: """
+module load GATK/{version}
+java -Xmx16g -Djava.io.tmpdir=/scratch/ -jar $GATKJAR \
+-nt {threads} \
+-rf BadCigar \
+-glm BOTH \
+-T UnifiedGenotyper \
+-R {input.reference} \
+{params.inBams} \
+-o {output} \
+--dbsnp {params.dbsnp}
+"""  
+
+# -L /data/CCRBioinfo/zhujack/snake/hg19_chr_co.bed \
+
+
+## Multiple sample freebayes
+rule freebayesM:
+    """Freebayes multisample"""
+    input: bam=BAMS,
+           bai=BAIS,
+           reference = config['references'][config['reference']]
+    output: "STUDY/variant/" + config['reference'] + "." + config['aligner'] + "/freebayes_all.vcf"
+    params: batch="-l nodes=1:gpfs -q ccr"
+    version: "0.9.15-3"
+    run:
+        bams = " ".join('-b ' + bam for bam in input.bam)
+        shell("module load freebayes/{version} && freebayes -f {input.reference} --haplotype-length 50 {bams} -v {output}")
+
