@@ -46,7 +46,7 @@ rule rnaalignment:
     output: temp(STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam"),
             STAR_OUTDIR+"/Chimeric.out.junction",
             STAR_OUTDIR+"/Chimeric.out.sam"
-    params:  batch="-q ccr -l nodes=1:g128",outdir=STAR_OUTDIR
+    params:  batch="-q ccr -l nodes=1",outdir=STAR_OUTDIR
     priority: 10
     threads: 32
     version: "2.4.1a"
@@ -56,6 +56,7 @@ rule rnaalignment:
         rg = " , ".join(["ID:{ID} LB:{LB} SM:{SM} PL:Illumina".format(**s) for s in source2fastq(wildcards)['rg']])
         #rg = ",".join(["ID:"+res[0] for res in source2fastq(wildcards)['rg']])
         shell("""mkdir -p {params.outdir}
+clearscratch
 module load STAR/{version}
 module load samtools
 STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
@@ -73,14 +74,7 @@ STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
         --outSAMattrRGline {rg} \
         --outSAMunmapped Within \
         --sjdbOverhang 60 \
+        --outFilterMatchNminOverLread 0.1 \
+        --outFilterScoreMinOverLread 0.1 \
         --readFilesCommand zcat
 """)
-
-rule rnapostalignment:
-    input: bam="bam/{source}/RNA/STAR/Aligned.out.bam",chimeric="bam/{source}/RNA/STAR/Chimeric.out.sam"
-    output: bam="bam/{source}/RNA/STAR/{source}.bam",chimeric=temp("bam/{source}/RNA/STAR/chimeric.bam")
-    params: batch='-l nodes=1:gpfs -q ccr',outbam='bam/{source}/RNA/STAR/chimeric'
-    threads: 2
-    shell: """samtools view -bS {input.chimeric} | samtools sort - {params.outbam} \
-java -jar /usr/local/picard/MergeSamFiles.jar I={output.chimeric} \
-   I={input.bam} O={output.bam} AS=true"""
