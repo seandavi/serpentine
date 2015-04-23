@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-from distutils.core import setup
+import os
+from setuptools import setup
 
 setup(name='Serpentine',
       version='0.1.1',
