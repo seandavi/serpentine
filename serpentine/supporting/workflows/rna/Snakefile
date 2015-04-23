@@ -44,9 +44,12 @@ rule final:
 rule rnaalignment:
     input:  lambda wildcards: source2fastq(wildcards)['fastq']
     output: temp(STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam"),
-            STAR_OUTDIR+"/Chimeric.out.junction",
-            STAR_OUTDIR+"/Chimeric.out.sam"
-    params:  batch="-q ccr -l nodes=1",outdir=STAR_OUTDIR
+            STAR_OUTDIR+"/Chimeric.out.junction"
+    params:  batch="-q ccr -l nodes=1",
+             outdir=STAR_OUTDIR,
+             chimJunctionOverhangMin=15,
+             chimSegmentMin=15,
+             sjdbOverhang=60
     priority: 10
     threads: 32
     version: "2.4.1a"
@@ -54,7 +57,6 @@ rule rnaalignment:
         read1 = ','.join(input[0::2])
         read2 = ','.join(input[1::2])
         rg = " , ".join(["ID:{ID} LB:{LB} SM:{SM} PL:Illumina".format(**s) for s in source2fastq(wildcards)['rg']])
-        #rg = ",".join(["ID:"+res[0] for res in source2fastq(wildcards)['rg']])
         shell("""mkdir -p {params.outdir}
 clearscratch
 module load STAR/{version}
@@ -65,15 +67,17 @@ STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
         --runThreadN {threads} \
         --outSAMstrandField intronMotif \
         --outFilterIntronMotifs RemoveNoncanonicalUnannotated \
-        --outReadsUnmapped None --chimSegmentMin 15 \
-        --chimJunctionOverhangMin 15 \
+        --outReadsUnmapped None \
+        --chimSegmentMin {params.chimSegmentMin} \
+        --chimJunctionOverhangMin {params.chimJunctionOverhangMin} \
         --alignMatesGapMax 200000 \
         --alignIntronMax 200000 \
         --outSAMtype BAM SortedByCoordinate \
         --outTmpDir /scratch/tmp \
         --outSAMattrRGline {rg} \
         --outSAMunmapped Within \
-        --sjdbOverhang 60 \
+        --chimOutType WithinBam \
+        --sjdbOverhang {params.sjdbOverhang} \
         --outFilterMatchNminOverLread 0.1 \
         --outFilterScoreMinOverLread 0.1 \
         --readFilesCommand zcat
