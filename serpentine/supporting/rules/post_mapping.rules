@@ -159,7 +159,7 @@ rule markdups:
     version: "1.119"
     shell: """
 module load picard/{version}
-java -jar $PICARDJARPATH/MarkDuplicates.jar \
+java -Xmx22g -jar $PICARDJARPATH/MarkDuplicates.jar \
 AS=true M={output.metrics} \
 O={output.bam} \
 I={input[0]} \
