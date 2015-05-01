@@ -10,7 +10,7 @@ rule novoalign:
     """
     input:
         index=lambda wildcards: SERPENTINE_HOME+"/resources/mapping/novoindex_"+ config['novoVersion'] +"/"+config['reference']+".index",
-        fastq=lambda wildcards: config["units"][wildcards.unit]
+        fastq=lambda wildcards: config["unit_fastq"][wildcards.unit]
     output:
         temp("RESULTS/{reference}.novo/{sample}/{unit,\w+}.unit.bam")
     version: config['novoVersion']
