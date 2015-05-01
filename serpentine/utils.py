@@ -24,6 +24,6 @@ def list_workflows(full_path=True):
     return wffiles
 
 def _list_workflows(args):
-    for r in list_workflows(full_path=False):
+    for r in list_workflows(full_path=True):
         print(r)
 
