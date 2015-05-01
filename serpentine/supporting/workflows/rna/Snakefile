@@ -1,15 +1,16 @@
 import csv
 from serpentine.utils import list_rules
 
-STAR_OUTDIR='bam/{source}/RNA/STAR/'
+STAR_OUTDIR='bam/{sample}/RNA/STAR'
 
 ss=[]
 
-config['references']={'a':'abc'}
-config['reference']='a'
+config['references']={'hg19':'/fdb/GATK_resource_bundle/hg19-2.8/ucsc.hg19.fasta'}
+config['reference']='hg19'
 config['gatkVersion']='123'
 config['resources']={'dbsnp':'abc'}
 config['resources']['knownIndels']='abc'
+config['refFlat']='refFlat.txt'
 
 with open(config['samplesheet'],'r') as csvfile:
     reader = csv.DictReader(csvfile,delimiter='\t')
@@ -25,7 +26,7 @@ for s in ss:
 def source2fastq(wc):
     ret={'fastq':[],
          'rg':[]}
-    for row in filter(lambda res:res['source']==wc.source,ss):
+    for row in filter(lambda res:res['source']==wc.sample,ss):
         ret['fastq']+=[row['read1'],row['read2']]
         ret['rg']+=[{'ID':row['result_id'],
                      'LB':row['library_id'],
@@ -34,22 +35,24 @@ def source2fastq(wc):
 
 
 include: list_rules()[4]
+include: list_rules()[5]
 
 localrules: final
 
 rule final:
         params: batch="-q ccr -l nodes=1"
-        input: expand(STAR_OUTDIR+"/Aligned.sortedByCoord.out.md.bam.bai",source=sources)
+        input: expand(STAR_OUTDIR+"/{sample}.md.bam.bai",sample=sources),
+               expand(STAR_OUTDIR+'/{sample}.md.rna_metrics',sample=sources)
         
 rule rnaalignment:
     input:  lambda wildcards: source2fastq(wildcards)['fastq']
-    output: temp(STAR_OUTDIR+"/Aligned.sortedByCoord.out.bam"),
-            STAR_OUTDIR+"/Chimeric.out.junction"
+    output: temp(STAR_OUTDIR+"/{sample}.bam"),
+            STAR_OUTDIR+"/{sample}.junction"
     params:  batch="-q ccr -l nodes=1",
              outdir=STAR_OUTDIR,
-             chimJunctionOverhangMin=15,
-             chimSegmentMin=15,
-             sjdbOverhang=60
+             chimJunctionOverhangMin="15",
+             chimSegmentMin="15",
+             sjdbOverhang="60"
     priority: 10
     threads: 32
     version: "2.4.1a"
@@ -81,4 +84,6 @@ STAR --genomeDir /data/CCRBioinfo/public/STAR/hg19_gencode14_ov60/ \
         --outFilterMatchNminOverLread 0.1 \
         --outFilterScoreMinOverLread 0.1 \
         --readFilesCommand zcat
+mv {params.outdir}/Aligned.sortedByCoord.out.bam {output[0]}
+mv {params.outdir}/Chimeric.out.junction {output[1]}
 """)
