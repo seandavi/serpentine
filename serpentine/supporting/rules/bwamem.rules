@@ -13,7 +13,7 @@ rule bwamem_map:
     """
     input:
         index=lambda wildcards: "resources/mapping/bwaindex_"+ config['bwaVersion'] +"/"+config['reference']+".pac",
-        fastq=lambda wildcards: config["units"][wildcards.unit]
+        fastq=lambda wildcards: config["unit_fastq"][wildcards.unit]
     output:
         temp("RESULTS/{reference}.bwamem/{sample}/{unit,\w+}.unit.bam")
     version: config['bwaVersion']
