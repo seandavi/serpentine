@@ -19,9 +19,9 @@
 rule fastqc:
     """fastqc data files will be saved to the same dir as the fastq files"""
     input:
-        "{prefix}.fastq.gz"
+        "{path}/{prefix}.fq.gz"
     output:
-        "{prefix}_fastqc.zip"
+        "fastqc/{prefix[^/]}_fastqc.zip"
     params: 
         batch = '-l nodes=1:gpfs -q ccr'
     version: "0.11.2"
@@ -59,6 +59,28 @@ PROGRAM=CollectInsertSizeMetrics \
 PROGRAM=QualityScoreDistribution \
 PROGRAM=MeanQualityByCycle
 """
+
+rule picardCollectRnaSeqMetrics:
+    """Picard RnaSeqMetrics"""
+    input:
+        bam="{base}.bam",
+	bai="{base}.bam.bai",
+	refFlat=config['refFlat'],
+        reference=config['references'][config['reference']]
+    output:
+        "{base}.rna_metrics"
+    params: batch = '-l nodes=1:gpfs'
+    version: "1.129"
+    shell: """
+module load picard/{version}
+java -jar ${{PICARDJARPATH}}/picard.jar CollectRnaSeqMetrics \
+REF_FLAT={input.refFlat} \
+VALIDATION_STRINGENCY=SILENT \
+STRAND_SPECIFICITY=NONE \
+INPUT={input.bam} \
+OUTPUT={output} 
+"""
+
 
 # rule targetIntervals:
 #     input: "bam/{source}_{tn, \w+}.realigned.md.bam"
