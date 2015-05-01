@@ -4,10 +4,7 @@ __license__ = "MIT"
 def _get_unit_bams_from_sample(wc):
     ret = []
     for u in SAMPLE_TO_UNIT[wc.sample]:
-        ret += ["RESULTS/{reference}.{aligner}/{sample}/{unit}.unit.bam".format(unit=u,
-                                                                                                      sample=wc.sample,
-                                                                                                      reference=wc.reference,
-                                                                                                      aligner=wc.aligner)]
+        ret += ["RESULTS/{reference}.{aligner}/{sample}/{unit}.unit.bam".format(unit=u, sample=wc.sample, reference=wc.reference, aligner=wc.aligner)]
     return(ret)
 
 def _knownIndels_to_GATK(known):
@@ -155,11 +152,11 @@ rule markdups:
     output: bam="{base}.md.bam",
             metrics="{base}.bam.dupmetrics"
     params: 
-        batch="-l nodes=1:gpfs"
+        batch="-l nodes=1:gpfs -q ccr"
     version: "1.119"
     shell: """
 module load picard/{version}
-java -Xmx22g -jar $PICARDJARPATH/MarkDuplicates.jar \
+java -Xmx60g -jar $PICARDJARPATH/MarkDuplicates.jar \
 AS=true M={output.metrics} \
 O={output.bam} \
 I={input[0]} \
@@ -172,7 +169,7 @@ rule mergeBam2Sample:
         batch="-l nodes=1:gpfs"
     input: _get_unit_bams_from_sample
     output:
-        "RESULTS/{reference,\w+}.{aligner,\w+}/{sample,\w+}/{sample}.bam"
+        "RESULTS/{reference,\w+}.{aligner,\w+}/{sample}/{sample}.bam"
     threads: 2
     version: "1.119"
     run:
